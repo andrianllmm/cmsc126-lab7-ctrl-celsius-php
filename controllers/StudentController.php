@@ -99,6 +99,7 @@ class StudentController
     public function update($id)
     {
         $imageFile = isset($_FILES['student_image']) ? $_FILES['student_image'] : null;
+        $deleteExistingImage = isset($_POST['delete_image']) && $_POST['delete_image'] == '1';
 
         $this->studentModel->update(
             $id,
@@ -108,7 +109,8 @@ class StudentController
             $_POST["course"],
             $_POST["year_level"],
             isset($_POST["graduation_status"]) ? 1 : 0,
-            $imageFile
+            $imageFile,
+            $deleteExistingImage
         );
 
         header("Location: " . (BASE_URL ?: '/'));
