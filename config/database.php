@@ -11,10 +11,10 @@ class Database
 
     public function __construct()
     {
-        $this->host = getenv('DB_HOST') ?: 'localhost';
-        $this->user = getenv('DB_USER') ?: 'root';
-        $this->pass = getenv('DB_PASS') ?: '';
-        $this->name = getenv('DB_NAME') ?: 'cmsc126_db';
+        $this->host = $_ENV['DB_HOST'] ?? getenv('DB_HOST') ?? 'localhost';
+        $this->user = $_ENV['DB_USER'] ?? getenv('DB_USER') ?? 'root';
+        $this->pass = $_ENV['DB_PASS'] ?? getenv('DB_PASS') ?? '';
+        $this->name = $_ENV['DB_NAME'] ?? getenv('DB_NAME') ?? 'cmsc126_db';
     }
 
     public function connect()
