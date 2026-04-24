@@ -274,4 +274,25 @@ class Student
 
         return null;
     }
+
+    /**
+     * Delete image from uploads directory
+     *
+     * @param string $image_path Path to image (relative to BASE_PATH)
+     * @return bool Success status
+     */
+    private function deleteImage($image_path)
+    {
+        if (empty($image_path)) {
+            return false;
+        }
+
+        $filepath = BASE_PATH . '/' . $image_path;
+
+        if (file_exists($filepath)) {
+            return unlink($filepath);
+        }
+
+        return false;
+    }
 }
