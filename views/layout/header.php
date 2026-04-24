@@ -8,7 +8,7 @@
 
     <title>Student Registration</title>
 
-    <link rel="stylesheet" href="/assets/css/app.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/app.css">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 

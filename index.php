@@ -17,6 +17,14 @@ require BASE_PATH . '/controllers/StudentController.php';
 // Load environment variables from .env
 loadEnv(BASE_PATH . '/.env');
 
+// Base URL
+$base = getenv('BASE_URL');
+
+define(
+    'BASE_URL',
+    $base ? '/' . trim($base, '/') : ''
+);
+
 // Initialize database connection
 $db = (new Database())->connect();
 
@@ -25,8 +33,16 @@ $model = new Student($db);
 $controller = new StudentController($model);
 
 // Parse current request URI (path only)
-$uri = parse_url($_SERVER['REQUEST_URI'])['path'];
+$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+
+// Remove base folder from URI
+$uri = str_replace('/' . trim(BASE_URL, '/'), '', $uri);
+
+// Normalize
 $uri = rtrim($uri, '/');
+if ($uri === '') {
+    $uri = '/';
+}
 
 /**
  * Basic Router
