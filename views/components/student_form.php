@@ -17,7 +17,6 @@ $isEdit = isset($student);
     enctype="multipart/form-data"
     class="space-y-8">
 
-    <!-- Personal Info -->
     <div>
       <div class="flex items-center gap-3 mb-4">
         <p class="text-xs font-medium text-gray-400 uppercase tracking-widest whitespace-nowrap">Personal info</p>
@@ -67,7 +66,6 @@ $isEdit = isset($student);
       </div>
     </div>
 
-    <!-- Academic Details -->
     <div>
       <div class="flex items-center gap-3 mb-4">
         <p class="text-xs font-medium text-gray-400 uppercase tracking-widest whitespace-nowrap">Academic details</p>
@@ -119,17 +117,15 @@ $isEdit = isset($student);
       </div>
     </div>
 
-    <!-- Student Photo -->
     <div>
       <div class="flex items-center gap-3 mb-4">
         <p class="text-xs font-medium text-gray-400 uppercase tracking-widest whitespace-nowrap">Student photo</p>
         <div class="flex-1 h-px bg-gray-200"></div>
       </div>
 
-      <!-- Drop Zone -->
       <div
         id="dropzone"
-        class="relative border-2 border-dashed border-gray-300 rounded-xl p-8 text-center cursor-pointer transition hover:border-red-800 hover:bg-red-50/30 group">
+        class="relative border-2 border-dashed border-gray-300 rounded-xl p-8 text-center cursor-pointer transition hover:border-red-800 hover:bg-red-50/30 group <?= ($isEdit && !empty($student['image_path'])) ? 'hidden' : '' ?>">
         <input
           type="file"
           name="student_image"
@@ -148,22 +144,34 @@ $isEdit = isset($student);
         </div>
       </div>
 
-      <!-- File Preview -->
-      <div id="preview" class="hidden mt-3 flex items-center gap-3 px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg">
-        <img id="previewImg" src="" alt="preview" class="w-12 h-12 rounded-lg object-cover border border-gray-200 flex-shrink-0">
+      <?php
+      $showPreview = false;
+      $previewSrc = '';
+      $previewName = '';
+      $previewSize = '';
+
+      // Check if editing and has an existing image
+      if ($isEdit && !empty($student['image_path'])) {
+          $showPreview = true;
+          $previewSrc = BASE_URL . '/' . htmlspecialchars($student['image_path']);
+          $previewName = basename($student['image_path']);
+
+          // Assuming image exists, otherwise size detection needs server-side logic
+          $previewSize = 'Existing File';
+      }
+      ?>
+
+      <div id="preview" class="<?= $showPreview ? '' : 'hidden' ?> mt-3 flex items-center gap-3 px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg">
+        <img id="previewImg" src="<?= $previewSrc ?>" alt="preview" class="w-12 h-12 rounded-lg object-cover border border-gray-200 flex-shrink-0">
         <div class="flex-1 min-w-0">
-          <p id="previewName" class="text-sm font-medium text-gray-800 truncate"></p>
-          <p id="previewSize" class="text-xs text-gray-400"></p>
+          <p id="previewName" class="text-sm font-medium text-gray-800 truncate"><?= $previewName ?></p>
+          <p id="previewSize" class="text-xs text-gray-400"><?= $previewSize ?></p>
         </div>
         <button id="removeFile" type="button" class="text-gray-400 hover:text-red-800 transition text-lg px-1 flex-shrink-0 leading-none">&times;</button>
       </div>
 
-      <?php if ($isEdit && !empty($student['image_path'])): ?>
-        <p class="text-xs text-gray-400 mt-2">Current file: <?= htmlspecialchars($student['image_path']) ?></p>
-      <?php endif; ?>
     </div>
 
-    <!-- Footer -->
     <div class="pt-4 border-t border-gray-200 flex items-center justify-between">
       <button
         type="button"
