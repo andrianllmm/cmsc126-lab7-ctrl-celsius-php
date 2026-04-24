@@ -212,4 +212,48 @@ class Student
         $stmt->close();
         return null;
     }
+
+    /**
+     * Upload image to uploads directory
+     *
+     * @param array $file $_FILES['student_image']
+     * @return string|null Image path or null if failed
+     */
+    private function uploadImage($file)
+    {
+        // Validate file
+        if ($file['error'] !== UPLOAD_ERR_OK) {
+            return null;
+        }
+
+        // Check file type
+        $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        if (!in_array($file['type'], $allowed_types)) {
+            return null;
+        }
+
+        // Check file size (5MB max)
+        $max_size = 5 * 1024 * 1024;
+        if ($file['size'] > $max_size) {
+            return null;
+        }
+
+        // Create uploads directory if it doesn't exist
+        $upload_dir = BASE_PATH . '/uploads';
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0755, true);
+        }
+
+        // Generate unique filename
+        $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+        $filename = uniqid('student_') . '.' . $ext;
+        $filepath = $upload_dir . '/' . $filename;
+
+        // Move uploaded file
+        if (move_uploaded_file($file['tmp_name'], $filepath)) {
+            return 'uploads/' . $filename;
+        }
+
+        return null;
+    }
 }
