@@ -1,5 +1,7 @@
 # CMSC 126 Lab 7 - PHP
 
+Demo: [http://andrianllmm.page.gd/](http://andrianllmm.page.gd/)
+
 ## Overview
 
 This project is a PHP and MySQL web application implementing a basic CRUD system with file upload functionality.
@@ -9,9 +11,11 @@ This project is a PHP and MySQL web application implementing a basic CRUD system
 - Create, Read, Update, Delete (CRUD)
 - Search functionality
 - File upload handling (images)
-- Relational database (students <-> courses)
-- Clean URL routing
-- Environment variables
+- Relational database with multiple models (students <-> courses)
+- Clean and dynamic URL routing (no .php extension)
+- Environment variables (.env)
+- JavaScript integration
+- Tailwind CSS integration
 
 ## Architecture Overview
 
@@ -23,8 +27,27 @@ This project follows a minimal MVC-inspired structure.
 
 ### Flow
 
-```text
-Request -> index.php -> Router -> Controller -> Model -> View -> Response
+```mermaid
+sequenceDiagram
+    actor User
+    participant Router
+    participant Controller
+    participant Model
+    participant DB as MySQL Database
+    participant View
+
+    User->>Router: Request
+    Router->>Controller: Route request
+
+    Controller->>Model: Process data
+    Model->>DB: Query
+    DB-->>Model: Result
+    Model-->>Controller: Data
+
+    Controller->>View: Render data
+    View-->>Controller: HTML
+
+    Controller-->>User: Response
 ```
 
 ### Data Model
