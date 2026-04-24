@@ -4,8 +4,8 @@
             <tr>
                 <th class="px-4 py-2 border-b"></th>
                 <th class="px-4 py-2 border-b">Name</th>
-                <th class="px-4 py-2 border-b">Age</th>
                 <th class="px-4 py-2 border-b">Email</th>
+                <th class="px-4 py-2 border-b">Age</th>
                 <th class="px-4 py-2 border-b">Course</th>
                 <th class="px-4 py-2 border-b">Year</th>
                 <th class="px-4 py-2 border-b">Graduated</th>
@@ -25,15 +25,22 @@
                     </td>
 
                     <td class="px-4 py-2 border-b">
-                        <?= htmlspecialchars($s['name']) ?>
+                        <a href="<?= BASE_URL ?>/student/<?= $s['id'] ?>"
+                            class="text-red-800 hover:underline flex items-center gap-1">
+                            <?= htmlspecialchars($s['name']) ?>
+                            <i class="fa-solid fa-arrow-up-right-from-square fa-xs"></i>
+                        </a>
+                    </td>
+
+                    <td class="px-4 py-2 border-b">
+                        <a href="mailto:<?= htmlspecialchars($s['email']) ?>" class="text-red-800 hover:underline">
+                            <i class="fa-regular fa-envelope fa-xs"></i>
+                            <?= htmlspecialchars($s['email']) ?>
+                        </a>
                     </td>
 
                     <td class="px-4 py-2 border-b">
                         <?= $s['age'] ?>
-                    </td>
-
-                    <td class="px-4 py-2 border-b">
-                        <?= htmlspecialchars($s['email']) ?>
                     </td>
 
                     <td class="px-4 py-2 border-b">
