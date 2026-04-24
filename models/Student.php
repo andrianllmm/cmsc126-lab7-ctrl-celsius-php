@@ -44,7 +44,7 @@ class Student
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 
-/**
+    /**
      * Find a student by ID
      *
      * Retrieves student data along with course name from courses table
@@ -94,16 +94,20 @@ class Student
     /**
      * Create a new student record
      *
+     * Accepts either a cropped base64 image (from the crop editor) or a
+     * raw $_FILES upload. The cropped image takes priority.
+     *
      * @param string $name
-     * @param int $age
+     * @param int    $age
      * @param string $email
-     * @param string $course Course name
-     * @param int $year_level
-     * @param int $status (0 or 1 for graduation status)
-     * @param array $imageFile $_FILES['student_image'] or null
+     * @param string $course       Course name
+     * @param int    $year_level
+     * @param int    $status       0 or 1 for graduation status
+     * @param array  $imageFile    $_FILES['student_image_raw'] or null
+     * @param string $croppedImage Base64 data-URL from the crop editor or ''
      * @return bool Success status
      */
-    public function create($name, $age, $email, $course, $year_level, $status, $imageFile = null)
+    public function create($name, $age, $email, $course, $year_level, $status, $imageFile = null, $croppedImage = '')
     {
         // Get course_id from course name
         $course_id = $this->getCourseId($course);
@@ -111,9 +115,14 @@ class Student
             return false;
         }
 
-        // Handle image upload
+        // Handle image — cropped base64 takes priority over raw file upload
         $image_path = null;
-        if ($imageFile && $imageFile['error'] === UPLOAD_ERR_OK) {
+        if (!empty($croppedImage)) {
+            $image_path = $this->saveCroppedImage($croppedImage);
+            if (!$image_path) {
+                return false;
+            }
+        } elseif ($imageFile && $imageFile['error'] === UPLOAD_ERR_OK) {
             $image_path = $this->uploadImage($imageFile);
             if (!$image_path) {
                 return false;
@@ -148,17 +157,22 @@ class Student
     /**
      * Update an existing student record
      *
-     * @param int $id Student ID
+     * Accepts either a cropped base64 image (from the crop editor) or a
+     * raw $_FILES upload. The cropped image takes priority.
+     *
+     * @param int    $id
      * @param string $name
-     * @param int $age
+     * @param int    $age
      * @param string $email
-     * @param string $course Course name
-     * @param int $year_level
-     * @param int $status (0 or 1 for graduation status)
-     * @param array $imageFile $_FILES['student_image'] or null
+     * @param string $course              Course name
+     * @param int    $year_level
+     * @param int    $status              0 or 1 for graduation status
+     * @param array  $imageFile           $_FILES['student_image_raw'] or null
+     * @param bool   $deleteExistingImage Whether to remove the current image
+     * @param string $croppedImage        Base64 data-URL from the crop editor or ''
      * @return bool Success status
      */
-    public function update($id, $name, $age, $email, $course, $year_level, $status, $imageFile = null, $deleteExistingImage = false)
+    public function update($id, $name, $age, $email, $course, $year_level, $status, $imageFile = null, $deleteExistingImage = false, $croppedImage = '')
     {
         // Get course_id from course name
         $course_id = $this->getCourseId($course);
@@ -175,30 +189,35 @@ class Student
             return false;
         }
 
-        // Determine the final image_path value
-        $image_path = $oldStudent['image_path'];  // Default: keep existing
+        // Start with the existing image path
+        $image_path = $oldStudent['image_path'];
 
-        // Handle image deletion flag
+        // Handle explicit image deletion flag
         if ($deleteExistingImage && !empty($oldStudent['image_path'])) {
             $this->deleteImage($oldStudent['image_path']);
             $image_path = null;
         }
 
-        // Handle new image upload
-        if ($imageFile && $imageFile['error'] === UPLOAD_ERR_OK) {
-            // Delete old image if it exists and we're uploading a new one
+        // Cropped base64 takes priority over raw file upload
+        if (!empty($croppedImage)) {
             if (!empty($oldStudent['image_path'])) {
                 $this->deleteImage($oldStudent['image_path']);
             }
-
-            // Upload new image
+            $image_path = $this->saveCroppedImage($croppedImage);
+            if (!$image_path) {
+                return false;
+            }
+        } elseif ($imageFile && $imageFile['error'] === UPLOAD_ERR_OK) {
+            if (!empty($oldStudent['image_path'])) {
+                $this->deleteImage($oldStudent['image_path']);
+            }
             $image_path = $this->uploadImage($imageFile);
             if (!$image_path) {
                 return false;
             }
         }
 
-        // Update student record with new image_path value
+        // Update student record
         $sql = "
             UPDATE students
             SET name = ?, age = ?, email = ?, course_id = ?, year_level = ?, graduation_status = ?, image_path = ?
@@ -232,11 +251,10 @@ class Student
         $student = $this->getStudentRecord($id);
 
         if (!$student) {
-            return false; // Student doesn't exist
+            return false;
         }
 
-        // Delete Query
-        $sql = "DELETE FROM students WHERE id = ?";
+        $sql  = "DELETE FROM students WHERE id = ?";
         $stmt = $this->conn->prepare($sql);
 
         if (!$stmt) {
@@ -245,11 +263,9 @@ class Student
 
         $stmt->bind_param("i", $id);
 
-        // Execute delete
         if ($stmt->execute()) {
             $stmt->close();
 
-            // Delete associated image if exists
             if (!empty($student['image_path'])) {
                 $this->deleteImage($student['image_path']);
             }
@@ -262,15 +278,68 @@ class Student
     }
 
     /**
-     * Get course ID from course name (creates if doesn't exist)
+     * Save a cropped base64 image (from the front-end crop editor) to disk
+     *
+     * Accepts a full data-URL such as:
+     *   data:image/png;base64,iVBORw0KGgo...
+     *
+     * @param string $dataUrl Base64 data-URL
+     * @return string|null Relative path (e.g. "uploads/student_abc123.png") or null on failure
+     */
+    private function saveCroppedImage($dataUrl)
+    {
+        if (empty($dataUrl)) {
+            return null;
+        }
+
+        // Strip the data-URL header (e.g. "data:image/png;base64,")
+        if (!preg_match('/^data:image\/(\w+);base64,/', $dataUrl, $matches)) {
+            return null;
+        }
+
+        $ext     = strtolower($matches[1]) === 'jpeg' ? 'jpg' : strtolower($matches[1]);
+        $allowed = ['png', 'jpg', 'gif', 'webp'];
+        if (!in_array($ext, $allowed)) {
+            return null;
+        }
+
+        $base64Data = preg_replace('/^data:image\/\w+;base64,/', '', $dataUrl);
+        $imageData  = base64_decode($base64Data);
+
+        if ($imageData === false) {
+            return null;
+        }
+
+        // Enforce 5 MB limit
+        if (strlen($imageData) > 5 * 1024 * 1024) {
+            return null;
+        }
+
+        // Ensure uploads directory exists
+        $upload_dir = BASE_PATH . '/uploads';
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0755, true);
+        }
+
+        $filename = 'student_' . uniqid() . '.' . $ext;
+        $filepath = $upload_dir . '/' . $filename;
+
+        if (file_put_contents($filepath, $imageData) !== false) {
+            return 'uploads/' . $filename;
+        }
+
+        return null;
+    }
+
+    /**
+     * Get course ID from course name (creates the course if it doesn't exist)
      *
      * @param string $course Course name
      * @return int|null Course ID or null if failed
      */
     private function getCourseId($course)
     {
-        // First, try to find existing course
-        $sql = "SELECT id FROM courses WHERE course_name = ?";
+        $sql  = "SELECT id FROM courses WHERE course_name = ?";
         $stmt = $this->conn->prepare($sql);
 
         if (!$stmt) {
@@ -289,8 +358,8 @@ class Student
 
         $stmt->close();
 
-        // If course doesn't exist, create it
-        $sql = "INSERT INTO courses (course_name) VALUES (?)";
+        // Course doesn't exist — create it
+        $sql  = "INSERT INTO courses (course_name) VALUES (?)";
         $stmt = $this->conn->prepare($sql);
 
         if (!$stmt) {
@@ -310,14 +379,14 @@ class Student
     }
 
     /**
-     * Get student record by ID
+     * Get a raw student record by ID (no course join)
      *
      * @param int $id Student ID
-     * @return array|null Student data or null if not found
+     * @return array|null
      */
     private function getStudentRecord($id)
     {
-        $sql = "SELECT * FROM students WHERE id = ?";
+        $sql  = "SELECT * FROM students WHERE id = ?";
         $stmt = $this->conn->prepare($sql);
 
         if (!$stmt) {
@@ -339,42 +408,35 @@ class Student
     }
 
     /**
-     * Upload image to uploads directory
+     * Upload a raw image file to the uploads directory
      *
-     * @param array $file $_FILES['student_image']
-     * @return string|null Image path or null if failed
+     * @param array $file $_FILES entry
+     * @return string|null Relative path or null on failure
      */
     private function uploadImage($file)
     {
-        // Validate file
         if ($file['error'] !== UPLOAD_ERR_OK) {
             return null;
         }
 
-        // Check file type
         $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
         if (!in_array($file['type'], $allowed_types)) {
             return null;
         }
 
-        // Check file size (5MB max)
-        $max_size = 5 * 1024 * 1024;
-        if ($file['size'] > $max_size) {
+        if ($file['size'] > 5 * 1024 * 1024) {
             return null;
         }
 
-        // Create uploads directory if it doesn't exist
         $upload_dir = BASE_PATH . '/uploads';
         if (!is_dir($upload_dir)) {
             mkdir($upload_dir, 0755, true);
         }
 
-        // Generate unique filename
-        $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
-        $filename = uniqid('student_') . '.' . $ext;
+        $ext      = pathinfo($file['name'], PATHINFO_EXTENSION);
+        $filename = 'student_' . uniqid() . '.' . $ext;
         $filepath = $upload_dir . '/' . $filename;
 
-        // Move uploaded file
         if (move_uploaded_file($file['tmp_name'], $filepath)) {
             return 'uploads/' . $filename;
         }
@@ -383,10 +445,10 @@ class Student
     }
 
     /**
-     * Delete image from uploads directory
+     * Delete an image file from the uploads directory
      *
-     * @param string $image_path Path to image (relative to BASE_PATH)
-     * @return bool Success status
+     * @param string $image_path Relative path (e.g. "uploads/student_abc.png")
+     * @return bool
      */
     private function deleteImage($image_path)
     {
