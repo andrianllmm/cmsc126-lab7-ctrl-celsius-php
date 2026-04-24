@@ -1,15 +1,29 @@
+<?php
+$columns = [
+    0 => 'Image',
+    1 => 'Name',
+    2 => 'Email',
+    3 => 'Age',
+    4 => 'Course',
+    5 => 'Year',
+    6 => 'Graduated',
+    7 => 'Actions',
+];
+?>
+
+<?php require BASE_PATH . '/views/components/column_toggle.php'; ?>
+
 <div class="overflow-x-auto">
     <table class="min-w-full border text-sm">
         <thead class="bg-gray-100 text-left">
             <tr>
-                <th class="px-4 py-2 border-b"></th>
-                <th class="px-4 py-2 border-b">Name</th>
-                <th class="px-4 py-2 border-b">Email</th>
-                <th class="px-4 py-2 border-b">Age</th>
-                <th class="px-4 py-2 border-b">Course</th>
-                <th class="px-4 py-2 border-b">Year</th>
-                <th class="px-4 py-2 border-b">Graduated</th>
-                <th class="px-4 py-2 border-b text-end"></th>
+                <?php foreach ($columns as $col => $label): ?>
+                    <th data-col="<?= $col ?>"
+                        class="px-4 py-2 border-b">
+
+                        <?= $col === 0 || $col === 7 ? '' : htmlspecialchars($label) ?>
+                    </th>
+                <?php endforeach; ?>
             </tr>
         </thead>
 
@@ -17,14 +31,14 @@
             <?php foreach ($students as $s): ?>
                 <tr class="hover:bg-gray-50">
 
-                    <td class="px-4 py-2 border-b">
+                    <td data-col="0" class="px-4 py-2 border-b">
                         <img
                             src="<?= asset_upload($s['image_path']) ?>"
                             alt="Student Image"
                             class="w-10 h-10 rounded-full object-cover">
                     </td>
 
-                    <td class="px-4 py-2 border-b">
+                    <td data-col="1" class="px-4 py-2 border-b">
                         <a href="<?= BASE_URL ?>/student/<?= $s['id'] ?>"
                             class="text-red-800 hover:underline flex items-center gap-1">
                             <?= htmlspecialchars($s['name']) ?>
@@ -32,26 +46,26 @@
                         </a>
                     </td>
 
-                    <td class="px-4 py-2 border-b">
+                    <td data-col="2" class="px-4 py-2 border-b">
                         <a href="mailto:<?= htmlspecialchars($s['email']) ?>" class="text-red-800 hover:underline">
                             <i class="fa-regular fa-envelope fa-xs"></i>
                             <?= htmlspecialchars($s['email']) ?>
                         </a>
                     </td>
 
-                    <td class="px-4 py-2 border-b">
+                    <td data-col="3" class="px-4 py-2 border-b">
                         <?= $s['age'] ?>
                     </td>
 
-                    <td class="px-4 py-2 border-b">
+                    <td data-col="4" class="px-4 py-2 border-b">
                         <?= htmlspecialchars($s['course_name']) ?>
                     </td>
 
-                    <td class="px-4 py-2 border-b">
+                    <td data-col="5" class="px-4 py-2 border-b">
                         <?= $s['year_level'] ?>
                     </td>
 
-                    <td class="px-4 py-2 border-b">
+                    <td data-col="6" class="px-4 py-2 border-b">
                         <?php if ($s['graduation_status']): ?>
                             <i class="fa-solid fa-circle-check text-green-700" title="Graduated"></i>
                         <?php else: ?>
@@ -59,7 +73,7 @@
                         <?php endif; ?>
                     </td>
 
-                    <td class="px-4 py-2 border-b">
+                    <td data-col="7" class="px-4 py-2 border-b">
                         <div class="flex justify-end gap-2">
 
                             <a href="<?= BASE_URL ?>/edit/<?= $s['id'] ?>"
