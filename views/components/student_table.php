@@ -8,7 +8,7 @@
                 <th class="px-4 py-2 border-b">Email</th>
                 <th class="px-4 py-2 border-b">Course</th>
                 <th class="px-4 py-2 border-b">Year</th>
-                <th class="px-4 py-2 border-b">Status</th>
+                <th class="px-4 py-2 border-b">Graduated</th>
                 <th class="px-4 py-2 border-b text-end"></th>
             </tr>
         </thead>
@@ -45,7 +45,11 @@
                     </td>
 
                     <td class="px-4 py-2 border-b">
-                        <?= $s['graduation_status'] ? 'Graduated' : 'Not Graduated' ?>
+                        <?php if ($s['graduation_status']): ?>
+                            <i class="fa-solid fa-circle-check text-green-700" title="Graduated"></i>
+                        <?php else: ?>
+                            <i class="fa-solid fa-circle-xmark text-gray-400" title="Not Graduated"></i>
+                        <?php endif; ?>
                     </td>
 
                     <td class="px-4 py-2 border-b">
