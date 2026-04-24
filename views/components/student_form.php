@@ -3,7 +3,9 @@ $student = $student ?? null;
 $isEdit = isset($student);
 ?>
 
-<form method="POST" action="<?= $isEdit ? '/update/' . $student['id'] : '/store' ?>" class="space-y-4">
+<form method="POST"
+    action="<?= BASE_URL . ($isEdit ? '/update/' . $student['id'] : '/store') ?>"
+    class="space-y-4">
 
     <input name="name"
         value="<?= $student['name'] ?? '' ?>"
