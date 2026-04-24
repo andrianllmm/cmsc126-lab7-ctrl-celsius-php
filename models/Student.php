@@ -50,7 +50,25 @@ class Student
      * @param int $id Student ID
      * @return array|null Student data or null if not found
      */
-    public function find($id) {}
+    public function find($id)
+    {
+        $sql = "
+            SELECT
+                students.*,
+                courses.course_name
+            FROM students
+            JOIN courses ON students.course_id = courses.id
+            WHERE students.id = ?
+            LIMIT 1
+        ";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+
+        $result = $stmt->get_result();
+        return $result->fetch_assoc();
+    }
 
     /**
      * Search students by keyword (name or email)

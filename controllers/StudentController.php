@@ -35,6 +35,24 @@ class StudentController
     }
 
     /**
+     * Show a single student
+     *
+     * Route: GET /student/{id}
+     */
+    public function show($id)
+    {
+        $student = $this->studentModel->find($id);
+
+        if (!$student) {
+            http_response_code(404);
+            require BASE_PATH . '/views/errors/404.php';
+            return;
+        }
+
+        require BASE_PATH . '/views/students/show.php';
+    }
+
+    /**
      * Show create form
      *
      * Route: GET /create

@@ -70,6 +70,9 @@ if ($uri === '' || $uri === '/') {
 } elseif (preg_match('#^/delete/(\d+)$#', $uri, $m)) {
     // GET /delete/{id}
     $controller->delete($m[1]);
+} elseif (preg_match('#^/student/(\d+)$#', $uri, $m)) {
+    // GET /student/{id}
+    $controller->show($m[1]);
 } else {
     // 404 Not Found
     http_response_code(404);
