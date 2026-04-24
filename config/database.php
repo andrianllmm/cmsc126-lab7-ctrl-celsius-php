@@ -11,10 +11,10 @@ class Database
 
     public function __construct()
     {
-        $this->host = $_ENV['DB_HOST'] ?? 'localhost';
-        $this->user = $_ENV['DB_USER'] ?? 'root';
-        $this->pass = $_ENV['DB_PASS'] ?? '';
-        $this->name = $_ENV['DB_NAME'] ?? 'cmsc126_db';
+        $this->host = getenv('DB_HOST') ?: 'localhost';
+        $this->user = getenv('DB_USER') ?: 'root';
+        $this->pass = getenv('DB_PASS') ?: '';
+        $this->name = getenv('DB_NAME') ?: 'cmsc126_db';
     }
 
     public function connect()
@@ -27,7 +27,7 @@ class Database
         );
 
         if ($this->conn->connect_error) {
-            die("Database connection failed: " . $this->conn->connect_error);
+            throw new Exception("Database connection failed: " . $this->conn->connect_error);
         }
 
         return $this->conn;
