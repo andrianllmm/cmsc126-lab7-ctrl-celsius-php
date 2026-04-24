@@ -1,0 +1,16 @@
+# Environment config
+.env
+
+# Dependencies (Composer)
+vendor/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Uploads
+public/assets/uploads/*
+!public/assets/uploads/.gitkeep
