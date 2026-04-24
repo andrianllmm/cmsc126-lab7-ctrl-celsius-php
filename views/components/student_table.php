@@ -2,6 +2,7 @@
     <table class="min-w-full border text-sm">
         <thead class="bg-gray-100 text-left">
             <tr>
+                <th class="px-4 py-2 border-b"></th>
                 <th class="px-4 py-2 border-b">Name</th>
                 <th class="px-4 py-2 border-b">Age</th>
                 <th class="px-4 py-2 border-b">Email</th>
@@ -15,6 +16,13 @@
         <tbody>
             <?php foreach ($students as $s): ?>
                 <tr class="hover:bg-gray-50">
+
+                    <td class="px-4 py-2 border-b">
+                        <img
+                            src="<?= asset_upload($s['image_path']) ?>"
+                            alt="Student Image"
+                            class="w-10 h-10 rounded-full object-cover">
+                    </td>
 
                     <td class="px-4 py-2 border-b">
                         <?= htmlspecialchars($s['name']) ?>

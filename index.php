@@ -24,6 +24,10 @@ $base = '/' . trim($base, '/');
 $base = $base === '/' ? '' : $base;
 
 define('BASE_URL', $base);
+define('ASSET_URL', $base . '/public');
+define('UPLOAD_URL', ASSET_URL . '/assets/uploads');
+
+include BASE_PATH . '/helpers/assets.php';
 
 // Initialize database connection
 $db = (new Database())->connect();
