@@ -18,7 +18,7 @@ require BASE_PATH . '/controllers/StudentController.php';
 loadEnv(BASE_PATH . '/.env');
 
 // Base URL (path prefix only)
-$base = getenv('BASE_URL') ?: '';
+$base = $_ENV['BASE_URL'] ?? getenv('BASE_URL') ?? '';
 
 $base = '/' . trim($base, '/');
 $base = $base === '/' ? '' : $base;

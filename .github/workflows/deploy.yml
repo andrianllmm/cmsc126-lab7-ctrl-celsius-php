@@ -1,4 +1,4 @@
-name: Deploy to InfinityFree
+name: Deploy
 
 on:
   push:
@@ -12,6 +12,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Create .env file
+        run: |
+          cat <<EOF > .env
+          DB_HOST=${{ secrets.DB_HOST }}
+          DB_USER=${{ secrets.DB_USER }}
+          DB_PASS=${{ secrets.DB_PASS }}
+          DB_NAME=${{ secrets.DB_NAME }}
+          EOF
 
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
