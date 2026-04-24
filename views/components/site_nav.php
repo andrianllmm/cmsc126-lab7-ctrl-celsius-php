@@ -12,10 +12,10 @@
             </a>
 
             <a href="<?= BASE_URL ?>/create" class="text-white/80 hover:text-white">
+                <i class="fa-solid fa-plus fa-xs"></i>
                 Create
             </a>
 
         </div>
-
     </div>
 </nav>
