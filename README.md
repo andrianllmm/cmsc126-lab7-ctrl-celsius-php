@@ -72,8 +72,7 @@ cmsc126-lab7-php/
 │   ├── students/          # Student pages (index, create, edit)
 │   └── errors/            # Error pages (404)
 │
-├── public/                # Entry point
-│   └── index.php          # Front controller + router
+├── index.php              # Front controller + router
 │
 ├── database/              # SQL files
 │   ├── schema.sql         # Schema (tables)
@@ -125,7 +124,7 @@ MySQL documentation: [https://dev.mysql.com/doc/](https://dev.mysql.com/doc/)
 Start PHP server:
 
 ```bash
-php -S 0.0.0.0:8000 -t public
+php -S 0.0.0.0:8000
 ```
 
 Open in browser:
