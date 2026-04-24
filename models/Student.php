@@ -135,4 +135,46 @@ class Student
      * @return bool Success status
      */
     public function delete($id) {}
+
+    private function getCourseId($course)
+    {
+        // Try to find existing course
+        $sql = "SELECT id FROM courses WHERE course_name = ?";
+        $stmt = $this->conn->prepare($sql);
+
+        if (!$stmt) {
+            return null;
+        }
+
+        $stmt->bind_param("s", $course);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            $stmt->close();
+            return $row['id'];
+        }
+
+        $stmt->close();
+
+        // If course doesn't exist, create it
+        $sql = "INSERT INTO courses (course_name) VALUES (?)";
+        $stmt = $this->conn->prepare($sql);
+
+        if (!$stmt) {
+            return null;
+        }
+
+        $stmt->bind_param("s", $course);
+
+        if ($stmt->execute()) {
+            $course_id = $this->conn->insert_id;
+            $stmt->close();
+            return $course_id;
+        }
+
+        $stmt->close();
+        return null;
+    }
 }
