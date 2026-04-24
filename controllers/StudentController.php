@@ -75,14 +75,16 @@ class StudentController
      */
     public function store()
     {
+        $imageFile = isset($_FILES['student_image']) ? $_FILES['student_image'] : null;
+
         $this->studentModel->create(
             $_POST["name"],
             $_POST["age"],
             $_POST["email"],
             $_POST["course"],
             $_POST["year_level"],
-            $_POST["status"],
-            $_POST["image_path"]
+            isset($_POST["graduation_status"]) ? 1 : 0,
+            $imageFile
         );
 
         header("Location: " . (BASE_URL ?: '/'));
@@ -114,6 +116,8 @@ class StudentController
      */
     public function update($id)
     {
+        $imageFile = isset($_FILES['student_image']) ? $_FILES['student_image'] : null;
+
         $this->studentModel->update(
             $id,
             $_POST["name"],
@@ -121,8 +125,8 @@ class StudentController
             $_POST["email"],
             $_POST["course"],
             $_POST["year_level"],
-            $_POST["status"],
-            $_POST["image_path"]
+            isset($_POST["graduation_status"]) ? 1 : 0,
+            $imageFile
         );
 
         header("Location: " . (BASE_URL ?: '/'));
