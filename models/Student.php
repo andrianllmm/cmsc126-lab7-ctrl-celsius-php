@@ -197,7 +197,39 @@ class Student
      * @param int $id
      * @return bool Success status
      */
-    public function delete($id) {}
+    public function delete($id)
+    {
+        $student = $this->getStudentRecord($id);
+
+        if (!$student) {
+            return false; // Student doesn't exist
+        }
+
+        // Delete Query
+        $sql = "DELETE FROM students WHERE id = ?";
+        $stmt = $this->conn->prepare($sql);
+
+        if (!$stmt) {
+            return false;
+        }
+
+        $stmt->bind_param("i", $id);
+
+        // Execute delete
+        if ($stmt->execute()) {
+            $stmt->close();
+
+            // Delete associated image if exists
+            if (!empty($student['image_path'])) {
+                $this->deleteImage($student['image_path']);
+            }
+
+            return true;
+        }
+
+        $stmt->close();
+        return false;
+    }
 
     /**
      * Get course ID from course name (creates if doesn't exist)
