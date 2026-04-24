@@ -58,7 +58,9 @@ $columns = [
                     </td>
 
                     <td data-col="4" class="px-4 py-2 border-b">
-                        <?= htmlspecialchars($s['course_name']) ?>
+                        <a href="<?= BASE_URL ?>/courses" class="text-red-800 hover:underline">
+                            <?= htmlspecialchars($s['course_name']) ?>
+                        </a>
                     </td>
 
                     <td data-col="5" class="px-4 py-2 border-b">
