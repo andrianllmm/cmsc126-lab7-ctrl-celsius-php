@@ -57,13 +57,13 @@
 
                             <a href="<?= BASE_URL ?>/edit/<?= $s['id'] ?>"
                                 class="bg-yellow-600 text-white px-3 py-1 text-xs">
-                                Edit
+                                <i class="fa-regular fa-pen-to-square"></i>
                             </a>
 
                             <a href="<?= BASE_URL ?>/delete/<?= $s['id'] ?>"
                                 onclick="return confirm('Delete this record?')"
                                 class="bg-red-700 text-white px-3 py-1 text-xs">
-                                Delete
+                                <i class="fa-regular fa-trash-can"></i>
                             </a>
 
                         </div>
