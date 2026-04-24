@@ -66,13 +66,14 @@ class Student
      * @param string $name
      * @param int $age
      * @param string $email
-     * @param int $course_id
+     * @param string $course Course name
      * @param int $year_level
-     * @param bool $status
-     * @param string $image_path
+     * @param int $status (0 or 1 for graduation status)
+     * @param array $imageFile $_FILES['student_image'] or null
      * @return bool Success status
      */
-    public function create($name, $age, $email, $course, $year_level, $status, $image_path) {
+    public function create($name, $age, $email, $course, $year_level, $status, $imageFile = null)
+    {
         // Get course_id from course name
         $course_id = $this->getCourseId($course);
         if (!$course_id) {
@@ -116,17 +117,79 @@ class Student
     /**
      * Update an existing student record
      *
-     * @param int $id
+     * @param int $id Student ID
      * @param string $name
      * @param int $age
      * @param string $email
-     * @param int $course_id
+     * @param string $course Course name
      * @param int $year_level
-     * @param bool $status
-     * @param string $image_path
+     * @param int $status (0 or 1 for graduation status)
+     * @param array $imageFile $_FILES['student_image'] or null
      * @return bool Success status
      */
-    public function update($id, $name, $age, $email, $course, $year_level, $status, $image_path) {}
+    public function update($id, $name, $age, $email, $course, $year_level, $status, $imageFile = null)
+    {
+        // Get course_id from course name
+        $course_id = $this->getCourseId($course);
+        if (!$course_id) {
+            return false;
+        }
+
+        // Convert status checkbox to boolean (1 or 0)
+        $status = $status ? 1 : 0;
+
+        // Handle image upload
+        $image_path = null;
+        if ($imageFile && $imageFile['error'] === UPLOAD_ERR_OK) {
+            // Get old image path to delete it
+            $oldStudent = $this->getStudentRecord($id);
+            if ($oldStudent && !empty($oldStudent['image_path'])) {
+                $this->deleteImage($oldStudent['image_path']);
+            }
+
+            // Upload new image
+            $image_path = $this->uploadImage($imageFile);
+            if (!$image_path) {
+                return false;
+            }
+
+            // Update with new image
+            $sql = "
+                UPDATE students
+                SET name = ?, age = ?, email = ?, course_id = ?, year_level = ?, graduation_status = ?, image_path = ?
+                WHERE id = ?
+            ";
+
+            $stmt = $this->conn->prepare($sql);
+            if (!$stmt) {
+                return false;
+            }
+
+            $stmt->bind_param("sisiiisi", $name, $age, $email, $course_id, $year_level, $status, $image_path, $id);
+        } else {
+            // Update without image
+            $sql = "
+                UPDATE students
+                SET name = ?, age = ?, email = ?, course_id = ?, year_level = ?, graduation_status = ?
+                WHERE id = ?
+            ";
+
+            $stmt = $this->conn->prepare($sql);
+            if (!$stmt) {
+                return false;
+            }
+
+            $stmt->bind_param("sisiiii", $name, $age, $email, $course_id, $year_level, $status, $id);
+        }
+
+        if ($stmt->execute()) {
+            $stmt->close();
+            return true;
+        }
+
+        $stmt->close();
+        return false;
+    }
 
     /**
      * Delete a student record by ID
@@ -136,7 +199,7 @@ class Student
      */
     public function delete($id) {}
 
-     /**
+    /**
      * Get course ID from course name (creates if doesn't exist)
      *
      * @param string $course Course name
@@ -144,7 +207,7 @@ class Student
      */
     private function getCourseId($course)
     {
-        // Try to find existing course
+        // First, try to find existing course
         $sql = "SELECT id FROM courses WHERE course_name = ?";
         $stmt = $this->conn->prepare($sql);
 
