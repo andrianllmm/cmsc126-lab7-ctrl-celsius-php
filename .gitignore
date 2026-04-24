@@ -14,3 +14,5 @@ Thumbs.db
 # Uploads
 public/assets/uploads/*
 !public/assets/uploads/.gitkeep
+!public/assets/uploads/placeholder.jpg
+!public/assets/uploads/seed.jpg
