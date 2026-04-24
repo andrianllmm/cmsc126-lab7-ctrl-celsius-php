@@ -72,7 +72,37 @@ class Student
      * @param string $image_path
      * @return bool Success status
      */
-    public function create($name, $age, $email, $course, $year_level, $status, $image_path) {}
+    public function create($name, $age, $email, $course, $year_level, $status, $image_path) {
+        // Get course_id from course name
+        $course_id = $this->getCourseId($course);
+        if (!$course_id) {
+            return false;
+        }
+
+        // Convert status checkbox to boolean (1 or 0)
+        $status = $status ? 1 : 0;
+
+        // Prepare and execute insert statement
+        $sql = "
+            INSERT INTO students (name, age, email, course_id, year_level, graduation_status, image_path)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ";
+
+        $stmt = $this->conn->prepare($sql);
+        if (!$stmt) {
+            return false;
+        }
+
+        $stmt->bind_param("sisiiis", $name, $age, $email, $course_id, $year_level, $status, $image_path);
+
+        if ($stmt->execute()) {
+            $stmt->close();
+            return true;
+        }
+
+        $stmt->close();
+        return false;
+    }
 
     /**
      * Update an existing student record
