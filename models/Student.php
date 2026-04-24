@@ -97,6 +97,15 @@ class Student
             return false;
         }
 
+        // Handle image upload
+        $image_path = null;
+        if ($imageFile && $imageFile['error'] === UPLOAD_ERR_OK) {
+            $image_path = $this->uploadImage($imageFile);
+            if (!$image_path) {
+                return false;
+            }
+        }
+
         // Convert status checkbox to boolean (1 or 0)
         $status = $status ? 1 : 0;
 
