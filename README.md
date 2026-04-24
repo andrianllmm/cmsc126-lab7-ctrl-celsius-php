@@ -17,15 +17,38 @@ This project is a PHP and MySQL web application implementing a basic CRUD system
 
 This project follows a minimal MVC-inspired structure.
 
-- **public/index.php**: Entry point and router
-- **controllers/**: Handles requests and coordinates logic
-- **models/**: Handles database queries
-- **views/**: Handles UI rendering
+- **Controllers**: Handles requests and coordinates logic
+- **Models**: Handles database queries
+- **Views**: Handles UI rendering
 
 ### Flow
 
 ```text
 Request -> index.php -> Router -> Controller -> Model -> View -> Response
+```
+
+### Data Model
+
+```mermaid
+erDiagram
+    COURSES {
+        INT id PK
+        VARCHAR course_name
+    }
+
+    STUDENTS {
+        INT id PK
+        VARCHAR name
+        INT age
+        VARCHAR email
+        INT course_id FK
+        INT year_level
+        BOOLEAN graduation_status
+        VARCHAR image_path
+        TIMESTAMP created_at
+    }
+
+    COURSES ||--o{ STUDENTS : has
 ```
 
 ## Project Structure
