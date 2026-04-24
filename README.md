@@ -4,9 +4,63 @@
 
 This project is a PHP and MySQL web application implementing a basic CRUD system with file upload functionality.
 
----
+## Features
 
-## Setup
+- Create, Read, Update, Delete (CRUD)
+- Search functionality
+- File upload handling (images)
+- Relational database (students <-> courses)
+- Clean URL routing
+- Environment variables
+
+## Architecture Overview
+
+This project follows a minimal MVC-inspired structure.
+
+- **public/index.php**: Entry point and router
+- **controllers/**: Handles requests and coordinates logic
+- **models/**: Handles database queries
+- **views/**: Handles UI rendering
+
+### Flow
+
+```text
+Request -> index.php -> Router -> Controller -> Model -> View -> Response
+```
+
+## Project Structure
+
+```text
+cmsc126-lab7-php/
+│
+├── config/                # Configuration files
+│   ├── database.php       # Database connection
+│   └── env.php            # .env loader
+│
+├── controllers/           # Application logic
+│   └── StudentController.php
+│
+├── models/                # Database interaction
+│   └── Student.php
+│
+├── views/                 # UI (HTML + PHP)
+│   ├── layout/            # Shared layout (header, footer)
+│   ├── components/        # Reusable UI parts (tables, forms)
+│   ├── students/          # Student pages (index, create, edit)
+│   └── errors/            # Error pages (404)
+│
+├── public/                # Entry point
+│   └── index.php          # Front controller + router
+│
+├── database/              # SQL files
+│   ├── schema.sql         # Schema (tables)
+│   └── seed.sql           # Dummy data
+│
+├── uploads/               # Uploaded images
+│
+├── .env                   # Environment variables
+└── README.md
+```
 
 Clone the repository:
 
@@ -21,13 +75,9 @@ Create environment file:
 cp .env.example .env
 ```
 
----
-
 ## Installation
 
 You may choose either Manual Setup (WSL / Linux) or XAMPP.
-
----
 
 ## Option 1: Manual Setup (WSL / Linux)
 
@@ -65,8 +115,6 @@ Start MySQL server:
 sudo systemctl start mysql
 ```
 
----
-
 ## Option 2: XAMPP Setup
 
 XAMPP provides Apache, PHP, and MySQL in one package.
@@ -83,8 +131,6 @@ XAMPP provides Apache, PHP, and MySQL in one package.
 
 XAMPP official documentation: [https://www.apachefriends.org/docs/](https://www.apachefriends.org/docs/)
 
----
-
 ## Database Setup
 
 ### Import schema
@@ -97,8 +143,6 @@ mysql -u root -p < database/schema.sql
 
 Or use phpMyAdmin import.
 
----
-
 ### Seed database (optional)
 
 To populate sample data:
@@ -106,8 +150,6 @@ To populate sample data:
 ```bash
 mysql -u root -p cmsc126_db < database/seed.sql
 ```
-
----
 
 ### Configure environment
 
@@ -118,12 +160,4 @@ DB_HOST=127.0.0.1
 DB_USER=root
 DB_PASS=yourpassword
 DB_NAME=cmsc126_db
-```
-
----
-
-### Run database
-
-```sh
-mysql -u root -p cmsc126_db
 ```
