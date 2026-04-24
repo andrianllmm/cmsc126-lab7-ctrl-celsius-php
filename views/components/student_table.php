@@ -43,12 +43,12 @@
                     <td class="px-4 py-2 border-b">
                         <div class="flex justify-end gap-2">
 
-                            <a href="/edit/<?= $s['id'] ?>"
+                            <a href="<?= BASE_URL ?>/edit/<?= $s['id'] ?>"
                                 class="bg-yellow-600 text-white px-3 py-1 text-xs">
                                 Edit
                             </a>
 
-                            <a href="/delete/<?= $s['id'] ?>"
+                            <a href="<?= BASE_URL ?>/delete/<?= $s['id'] ?>"
                                 onclick="return confirm('Delete this record?')"
                                 class="bg-red-700 text-white px-3 py-1 text-xs">
                                 Delete
