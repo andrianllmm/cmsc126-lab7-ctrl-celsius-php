@@ -12,7 +12,9 @@ define('BASE_PATH', __DIR__);
 require BASE_PATH . '/config/env.php';
 require BASE_PATH . '/config/database.php';
 require BASE_PATH . '/models/Student.php';
+require BASE_PATH . '/models/Course.php';
 require BASE_PATH . '/controllers/StudentController.php';
+require BASE_PATH . '/controllers/CourseController.php';
 
 // Load environment variables from .env
 loadEnv(BASE_PATH . '/.env');
@@ -33,8 +35,11 @@ include BASE_PATH . '/helpers/assets.php';
 $db = (new Database())->connect();
 
 // Initialize model and controller
-$model = new Student($db);
-$controller = new StudentController($model);
+$studentModel = new Student($db);
+$courseModel = new Course($db);
+
+$studentController = new StudentController($studentModel);
+$courseController = new CourseController($courseModel);
 
 // Parse current request URI (path only)
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -54,25 +59,27 @@ $uri = '/' . trim($uri, '/');
  */
 if ($uri === '' || $uri === '/') {
     // GET /
-    $controller->index();
+    $studentController->index();
 } elseif ($uri === '/create') {
     // GET /create
-    $controller->create();
+    $studentController->create();
 } elseif ($uri === '/store') {
     // POST /store
-    $controller->store();
+    $studentController->store();
+} elseif ($uri === '/courses') {
+    $courseController->index();
 } elseif (preg_match('#^/edit/(\d+)$#', $uri, $m)) {
     // GET /edit/{id}
-    $controller->edit($m[1]);
+    $studentController->edit($m[1]);
 } elseif (preg_match('#^/update/(\d+)$#', $uri, $m)) {
     // POST /update/{id}
-    $controller->update($m[1]);
+    $studentController->update($m[1]);
 } elseif (preg_match('#^/delete/(\d+)$#', $uri, $m)) {
     // GET /delete/{id}
-    $controller->delete($m[1]);
+    $studentController->delete($m[1]);
 } elseif (preg_match('#^/student/(\d+)$#', $uri, $m)) {
     // GET /student/{id}
-    $controller->show($m[1]);
+    $studentController->show($m[1]);
 } else {
     // 404 Not Found
     http_response_code(404);
