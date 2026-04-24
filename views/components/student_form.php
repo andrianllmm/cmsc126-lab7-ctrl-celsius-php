@@ -82,7 +82,7 @@ $isEdit = isset($student);
             name="course"
             type="text"
             maxlength="40"
-            value="<?= htmlspecialchars($student['course'] ?? '') ?>"
+            value="<?= htmlspecialchars($student['course_name'] ?? $student['course'] ?? '') ?>"
             placeholder="e.g. BS Computer Science"
             required
             class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-red-800 focus:ring-2 focus:ring-red-800/10 transition">
@@ -113,7 +113,7 @@ $isEdit = isset($student);
               value="1"
               <?= (isset($student['graduation_status']) && $student['graduation_status']) ? 'checked' : '' ?>
               class="w-4 h-4 accent-red-800 cursor-pointer">
-            <span class="text-sm text-gray-700">Mark as graduated</span>
+            <span class="text-sm text-gray-700">Graduating student</span>
           </label>
         </div>
       </div>
