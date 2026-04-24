@@ -7,6 +7,10 @@
 
         <div class="flex gap-4 text-sm">
 
+            <a href="<?= BASE_URL ?>/courses" class="text-white/80 hover:text-white">
+                Courses
+            </a>
+
             <a href="<?= BASE_URL ?>/" class="text-white/80 hover:text-white">
                 Records
             </a>
