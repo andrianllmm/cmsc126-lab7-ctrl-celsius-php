@@ -136,6 +136,12 @@ class Student
      */
     public function delete($id) {}
 
+     /**
+     * Get course ID from course name (creates if doesn't exist)
+     *
+     * @param string $course Course name
+     * @return int|null Course ID or null if failed
+     */
     private function getCourseId($course)
     {
         // Try to find existing course
@@ -172,6 +178,35 @@ class Student
             $course_id = $this->conn->insert_id;
             $stmt->close();
             return $course_id;
+        }
+
+        $stmt->close();
+        return null;
+    }
+
+    /**
+     * Get student record by ID
+     *
+     * @param int $id Student ID
+     * @return array|null Student data or null if not found
+     */
+    private function getStudentRecord($id)
+    {
+        $sql = "SELECT * FROM students WHERE id = ?";
+        $stmt = $this->conn->prepare($sql);
+
+        if (!$stmt) {
+            return null;
+        }
+
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            $stmt->close();
+            return $row;
         }
 
         $stmt->close();
