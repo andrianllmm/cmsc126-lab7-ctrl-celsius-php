@@ -44,13 +44,44 @@ class Student
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    /**
+/**
      * Find a student by ID
+     *
+     * Retrieves student data along with course name from courses table
      *
      * @param int $id Student ID
      * @return array|null Student data or null if not found
      */
-    public function find($id) {}
+    public function find($id)
+    {
+        $sql = "
+            SELECT
+                students.*,
+                courses.course_name
+            FROM students
+            LEFT JOIN courses ON students.course_id = courses.id
+            WHERE students.id = ?
+        ";
+
+        $stmt = $this->conn->prepare($sql);
+
+        if (!$stmt) {
+            return null;
+        }
+
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows > 0) {
+            $student = $result->fetch_assoc();
+            $stmt->close();
+            return $student;
+        }
+
+        $stmt->close();
+        return null;
+    }
 
     /**
      * Search students by keyword (name or email)
@@ -127,7 +158,7 @@ class Student
      * @param array $imageFile $_FILES['student_image'] or null
      * @return bool Success status
      */
-    public function update($id, $name, $age, $email, $course, $year_level, $status, $imageFile = null)
+    public function update($id, $name, $age, $email, $course, $year_level, $status, $imageFile = null, $deleteExistingImage = false)
     {
         // Get course_id from course name
         $course_id = $this->getCourseId($course);
@@ -138,12 +169,25 @@ class Student
         // Convert status checkbox to boolean (1 or 0)
         $status = $status ? 1 : 0;
 
-        // Handle image upload
-        $image_path = null;
+        // Get current student record
+        $oldStudent = $this->getStudentRecord($id);
+        if (!$oldStudent) {
+            return false;
+        }
+
+        // Determine the final image_path value
+        $image_path = $oldStudent['image_path'];  // Default: keep existing
+
+        // Handle image deletion flag
+        if ($deleteExistingImage && !empty($oldStudent['image_path'])) {
+            $this->deleteImage($oldStudent['image_path']);
+            $image_path = null;
+        }
+
+        // Handle new image upload
         if ($imageFile && $imageFile['error'] === UPLOAD_ERR_OK) {
-            // Get old image path to delete it
-            $oldStudent = $this->getStudentRecord($id);
-            if ($oldStudent && !empty($oldStudent['image_path'])) {
+            // Delete old image if it exists and we're uploading a new one
+            if (!empty($oldStudent['image_path'])) {
                 $this->deleteImage($oldStudent['image_path']);
             }
 
@@ -152,35 +196,21 @@ class Student
             if (!$image_path) {
                 return false;
             }
-
-            // Update with new image
-            $sql = "
-                UPDATE students
-                SET name = ?, age = ?, email = ?, course_id = ?, year_level = ?, graduation_status = ?, image_path = ?
-                WHERE id = ?
-            ";
-
-            $stmt = $this->conn->prepare($sql);
-            if (!$stmt) {
-                return false;
-            }
-
-            $stmt->bind_param("sisiiisi", $name, $age, $email, $course_id, $year_level, $status, $image_path, $id);
-        } else {
-            // Update without image
-            $sql = "
-                UPDATE students
-                SET name = ?, age = ?, email = ?, course_id = ?, year_level = ?, graduation_status = ?
-                WHERE id = ?
-            ";
-
-            $stmt = $this->conn->prepare($sql);
-            if (!$stmt) {
-                return false;
-            }
-
-            $stmt->bind_param("sisiiii", $name, $age, $email, $course_id, $year_level, $status, $id);
         }
+
+        // Update student record with new image_path value
+        $sql = "
+            UPDATE students
+            SET name = ?, age = ?, email = ?, course_id = ?, year_level = ?, graduation_status = ?, image_path = ?
+            WHERE id = ?
+        ";
+
+        $stmt = $this->conn->prepare($sql);
+        if (!$stmt) {
+            return false;
+        }
+
+        $stmt->bind_param("sisiiisi", $name, $age, $email, $course_id, $year_level, $status, $image_path, $id);
 
         if ($stmt->execute()) {
             $stmt->close();
