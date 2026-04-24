@@ -17,13 +17,13 @@ require BASE_PATH . '/controllers/StudentController.php';
 // Load environment variables from .env
 loadEnv(BASE_PATH . '/.env');
 
-// Base URL
-$base = getenv('BASE_URL');
+// Base URL (path prefix only)
+$base = getenv('BASE_URL') ?: '';
 
-define(
-    'BASE_URL',
-    $base ? '/' . trim($base, '/') : ''
-);
+$base = '/' . trim($base, '/');
+$base = $base === '/' ? '' : $base;
+
+define('BASE_URL', $base);
 
 // Initialize database connection
 $db = (new Database())->connect();
@@ -35,14 +35,13 @@ $controller = new StudentController($model);
 // Parse current request URI (path only)
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-// Remove base folder from URI
-$uri = str_replace('/' . trim(BASE_URL, '/'), '', $uri);
-
-// Normalize
-$uri = rtrim($uri, '/');
-if ($uri === '') {
-    $uri = '/';
+// Remove base path
+if (BASE_URL !== '') {
+    $uri = preg_replace('#^' . preg_quote(BASE_URL, '#') . '#', '', $uri);
 }
+
+// Always normalize to single leading slash, no trailing slash
+$uri = '/' . trim($uri, '/');
 
 /**
  * Basic Router

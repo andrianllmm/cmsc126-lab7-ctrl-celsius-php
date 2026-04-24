@@ -67,7 +67,7 @@ class StudentController
             $_POST["image_path"]
         );
 
-        header("Location: " . BASE_URL);
+        header("Location: " . (BASE_URL ?: '/'));
         exit;
     }
 
@@ -107,7 +107,7 @@ class StudentController
             $_POST["image_path"]
         );
 
-        header("Location: " . BASE_URL);
+        header("Location: " . (BASE_URL ?: '/'));
         exit;
     }
 
@@ -123,7 +123,7 @@ class StudentController
     {
         $this->studentModel->delete($id);
 
-        header("Location: " . BASE_URL);
+        header("Location: " . (BASE_URL ?: '/'));
         exit;
     }
 }
