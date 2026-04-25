@@ -134,5 +134,11 @@ class Student
      * @param int $id
      * @return bool Success status
      */
-    public function delete($id) {}
+    public function delete($id)
+    {
+        $sql = "DELETE FROM students WHERE id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $id);
+        return $stmt->execute();
+    }
 }
