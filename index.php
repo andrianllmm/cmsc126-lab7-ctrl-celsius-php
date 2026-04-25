@@ -38,7 +38,7 @@ $db = (new Database())->connect();
 $studentModel = new Student($db);
 $courseModel = new Course($db);
 
-$studentController = new StudentController($studentModel);
+$studentController = new StudentController($studentModel, $courseModel);
 $courseController = new CourseController($courseModel);
 
 // Parse current request URI (path only)

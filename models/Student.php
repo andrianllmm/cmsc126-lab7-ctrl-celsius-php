@@ -1,28 +1,28 @@
 <?php
+require_once BASE_PATH . '/helpers/ImageHandler.php';
 
 /**
  * Student Model
  *
  * Handles all database operations related to students.
- * Uses MySQLi for database interaction.
+ * Delegates image handling to ImageHandler.
  *
  * Tables:
  * - students
  * - courses (linked via course_id)
  */
-
 class Student
 {
     private $conn;
+    private $imageHandler;
 
     /**
-     * Constructor
-     *
      * @param mysqli $db Database connection instance
      */
     public function __construct($db)
     {
-        $this->conn = $db;
+        $this->conn         = $db;
+        $this->imageHandler = new ImageHandler();
     }
 
     /**
@@ -39,13 +39,14 @@ class Student
             FROM students
             JOIN courses ON students.course_id = courses.id
         ";
-
         $result = $this->conn->query($sql);
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 
     /**
      * Find a student by ID
+     *
+     * Retrieves student data along with course name from courses table.
      *
      * @param int $id Student ID
      * @return array|null Student data or null if not found
@@ -57,17 +58,26 @@ class Student
                 students.*,
                 courses.course_name
             FROM students
-            JOIN courses ON students.course_id = courses.id
+            LEFT JOIN courses ON students.course_id = courses.id
             WHERE students.id = ?
-            LIMIT 1
         ";
-
         $stmt = $this->conn->prepare($sql);
+        if (!$stmt) {
+            return null;
+        }
+
         $stmt->bind_param("i", $id);
         $stmt->execute();
-
         $result = $stmt->get_result();
-        return $result->fetch_assoc();
+
+        if ($result->num_rows > 0) {
+            $student = $result->fetch_assoc();
+            $stmt->close();
+            return $student;
+        }
+
+        $stmt->close();
+        return null;
     }
 
     /**
@@ -102,31 +112,133 @@ class Student
     /**
      * Create a new student record
      *
+     * Accepts either a cropped base64 image (from the crop editor) or a
+     * raw $_FILES upload. The cropped image takes priority.
+     *
      * @param string $name
-     * @param int $age
+     * @param int    $age
      * @param string $email
-     * @param int $course_id
-     * @param int $year_level
-     * @param bool $status
-     * @param string $image_path
+     * @param int    $course_id    Course ID from the courses table
+     * @param int    $year_level
+     * @param int    $status       0 or 1 for graduation status
+     * @param array  $imageFile    $_FILES['student_image_raw'] or null
+     * @param string $croppedImage Base64 data-URL from the crop editor or ''
      * @return bool Success status
      */
-    public function create($name, $age, $email, $course, $year_level, $status, $image_path) {}
+    public function create($name, $age, $email, $course_id, $year_level, $status, $imageFile = null, $croppedImage = '')
+    {
+        // Handle image — cropped base64 takes priority over raw file upload
+        $image_path = null;
+        if (!empty($croppedImage)) {
+            $image_path = $this->imageHandler->saveCroppedImage($croppedImage);
+            if (!$image_path) {
+                return false;
+            }
+        } elseif ($imageFile && $imageFile['error'] === UPLOAD_ERR_OK) {
+            $image_path = $this->imageHandler->uploadImage($imageFile);
+            if (!$image_path) {
+                return false;
+            }
+        }
+
+        // Convert status checkbox to boolean (1 or 0)
+        $status = $status ? 1 : 0;
+
+        $sql = "
+            INSERT INTO students (name, age, email, course_id, year_level, graduation_status, image_path)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ";
+        $stmt = $this->conn->prepare($sql);
+        if (!$stmt) {
+            return false;
+        }
+
+        $stmt->bind_param("sisiiis", $name, $age, $email, $course_id, $year_level, $status, $image_path);
+        if ($stmt->execute()) {
+            $stmt->close();
+            return true;
+        }
+
+        $stmt->close();
+        return false;
+    }
 
     /**
      * Update an existing student record
      *
-     * @param int $id
+     * Accepts either a cropped base64 image (from the crop editor) or a
+     * raw $_FILES upload. The cropped image takes priority.
+     *
+     * @param int    $id
      * @param string $name
-     * @param int $age
+     * @param int    $age
      * @param string $email
-     * @param int $course_id
-     * @param int $year_level
-     * @param bool $status
-     * @param string $image_path
+     * @param int    $course_id           Course ID from the courses table
+     * @param int    $year_level
+     * @param int    $status              0 or 1 for graduation status
+     * @param array  $imageFile           $_FILES['student_image_raw'] or null
+     * @param bool   $deleteExistingImage Whether to remove the current image
+     * @param string $croppedImage        Base64 data-URL from the crop editor or ''
      * @return bool Success status
      */
-    public function update($id, $name, $age, $email, $course, $year_level, $status, $image_path) {}
+    public function update($id, $name, $age, $email, $course_id, $year_level, $status, $imageFile = null, $deleteExistingImage = false, $croppedImage = '')
+    {
+        // Convert status checkbox to boolean (1 or 0)
+        $status = $status ? 1 : 0;
+
+        // Get current student record
+        $oldStudent = $this->getStudentRecord($id);
+        if (!$oldStudent) {
+            return false;
+        }
+
+        // Start with the existing image path
+        $image_path = $oldStudent['image_path'];
+
+        // Handle explicit image deletion flag
+        if ($deleteExistingImage && !empty($oldStudent['image_path'])) {
+            $this->imageHandler->deleteImage($oldStudent['image_path']);
+            $image_path = null;
+        }
+
+        // Cropped base64 takes priority over raw file upload
+        if (!empty($croppedImage)) {
+            if (!empty($oldStudent['image_path'])) {
+                $this->imageHandler->deleteImage($oldStudent['image_path']);
+            }
+            $image_path = $this->imageHandler->saveCroppedImage($croppedImage);
+            if (!$image_path) {
+                return false;
+            }
+        } elseif ($imageFile && $imageFile['error'] === UPLOAD_ERR_OK) {
+            if (!empty($oldStudent['image_path'])) {
+                $this->imageHandler->deleteImage($oldStudent['image_path']);
+            }
+            $image_path = $this->imageHandler->uploadImage($imageFile);
+            if (!$image_path) {
+                return false;
+            }
+        }
+
+        $sql = "
+            UPDATE students
+            SET name = ?, age = ?, email = ?, course_id = ?, year_level = ?, graduation_status = ?, image_path = ?
+            WHERE id = ?
+        ";
+        $stmt = $this->conn->prepare($sql);
+        if (!$stmt) {
+            return false;
+        }
+
+        $stmt->bind_param("sisiiisi", $name, $age, $email, $course_id, $year_level, $status, $image_path, $id);
+        if ($stmt->execute()) {
+            $stmt->close();
+            return true;
+        }
+
+        $stmt->close();
+        return false;
+    }
 
     /**
      * Delete a student record by ID
@@ -134,5 +246,53 @@ class Student
      * @param int $id
      * @return bool Success status
      */
-    public function delete($id) {}
+    public function delete($id)
+    {
+        $student = $this->getStudentRecord($id);
+        if (!$student) {
+            return false;
+        }
+
+        $sql  = "DELETE FROM students WHERE id = ?";
+        $stmt = $this->conn->prepare($sql);
+        if (!$stmt) {
+            return false;
+        }
+
+        $stmt->bind_param("i", $id);
+        if ($stmt->execute()) {
+            $stmt->close();
+            if (!empty($student['image_path'])) {
+                $this->imageHandler->deleteImage($student['image_path']);
+            }
+            return true;
+        }
+
+        $stmt->close();
+        return false;
+    }
+
+    /**
+     * Fetch a raw student record by ID (without course join)
+     *
+     * Used internally by update() and delete() to retrieve the current
+     * state of a record before making changes.
+     *
+     * @param int $id Student ID
+     * @return array|null Student row or null if not found
+     */
+    private function getStudentRecord($id)
+    {
+        $stmt = $this->conn->prepare("SELECT * FROM students WHERE id = ?");
+        if (!$stmt) {
+            return null;
+        }
+
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result  = $stmt->get_result();
+        $student = $result->num_rows > 0 ? $result->fetch_assoc() : null;
+        $stmt->close();
+        return $student;
+    }
 }

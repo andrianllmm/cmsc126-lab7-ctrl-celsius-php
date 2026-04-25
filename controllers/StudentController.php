@@ -9,15 +9,18 @@
 class StudentController
 {
     private $studentModel;
+    private $courseModel;
 
     /**
      * Constructor
      *
      * @param Student $studentModel Instance of Student model
+     * @param Course  $courseModel  Instance of Course model
      */
-    public function __construct($studentModel)
+    public function __construct($studentModel, $courseModel)
     {
         $this->studentModel = $studentModel;
+        $this->courseModel  = $courseModel;
     }
 
     /**
@@ -66,6 +69,8 @@ class StudentController
      */
     public function create()
     {
+        $courses = $this->courseModel->all();
+
         require BASE_PATH . '/views/students/create.php';
     }
 
@@ -74,23 +79,29 @@ class StudentController
      *
      * Route: POST /store
      *
-     * Uses $_POST data from form submission
+     * Reads the cropped base64 image from $_POST['student_image_cropped']
+     * (set by the front-end crop editor). Falls back to a raw file upload
+     * in $_FILES['student_image_raw'] if no cropped data is present.
      *
      * @return void
      */
     public function store()
     {
+        $imageFile    = isset($_FILES['student_image_raw']) ? $_FILES['student_image_raw'] : null;
+        $croppedImage = isset($_POST['student_image_cropped']) ? trim($_POST['student_image_cropped']) : '';
+
         $this->studentModel->create(
-            $_POST["name"],
-            $_POST["age"],
-            $_POST["email"],
-            $_POST["course"],
-            $_POST["year_level"],
-            $_POST["status"],
-            $_POST["image_path"]
+            $_POST['name'],
+            $_POST['age'],
+            $_POST['email'],
+            $_POST['course'],
+            $_POST['year_level'],
+            isset($_POST['graduation_status']) ? 1 : 0,
+            $imageFile,
+            $croppedImage
         );
 
-        header("Location: " . (BASE_URL ?: '/'));
+        header('Location: ' . (BASE_URL ?: '/'));
         exit;
     }
 
@@ -105,6 +116,7 @@ class StudentController
     public function edit($id)
     {
         $student = $this->studentModel->find($id);
+        $courses = $this->courseModel->all();
 
         require BASE_PATH . '/views/students/edit.php';
     }
@@ -114,23 +126,33 @@ class StudentController
      *
      * Route: POST /update/{id}
      *
+     * Reads the cropped base64 image from $_POST['student_image_cropped']
+     * (set by the front-end crop editor). Falls back to a raw file upload
+     * in $_FILES['student_image_raw'] if no cropped data is present.
+     *
      * @param int $id Student ID
      * @return void
      */
     public function update($id)
     {
+        $imageFile           = isset($_FILES['student_image_raw']) ? $_FILES['student_image_raw'] : null;
+        $deleteExistingImage = isset($_POST['delete_image']) && $_POST['delete_image'] == '1';
+        $croppedImage        = isset($_POST['student_image_cropped']) ? trim($_POST['student_image_cropped']) : '';
+
         $this->studentModel->update(
             $id,
-            $_POST["name"],
-            $_POST["age"],
-            $_POST["email"],
-            $_POST["course"],
-            $_POST["year_level"],
-            $_POST["status"],
-            $_POST["image_path"]
+            $_POST['name'],
+            $_POST['age'],
+            $_POST['email'],
+            $_POST['course'],
+            $_POST['year_level'],
+            isset($_POST['graduation_status']) ? 1 : 0,
+            $imageFile,
+            $deleteExistingImage,
+            $croppedImage
         );
 
-        header("Location: " . (BASE_URL ?: '/'));
+        header('Location: ' . (BASE_URL ?: '/'));
         exit;
     }
 
@@ -146,7 +168,7 @@ class StudentController
     {
         $this->studentModel->delete($id);
 
-        header("Location: " . (BASE_URL ?: '/'));
+        header('Location: ' . (BASE_URL ?: '/'));
         exit;
     }
 }
