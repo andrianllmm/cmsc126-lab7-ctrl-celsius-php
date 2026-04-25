@@ -21,7 +21,7 @@ class StudentController
     }
 
     /**
-     * Display list of all students
+     * Display list of all students or search results
      *
      * Route: GET /
      *
@@ -29,7 +29,12 @@ class StudentController
      */
     public function index()
     {
-        $students = $this->studentModel->all();
+        $query = $_GET['q'] ?? '';
+        if (!empty($query)) {
+            $students = $this->studentModel->search($query);
+        } else {
+            $students = $this->studentModel->all();
+        }
 
         require BASE_PATH . '/views/students/index.php';
     }

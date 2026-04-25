@@ -2,7 +2,7 @@
     <input
         type="text"
         name="q"
-        placeholder="Search student ID"
+        placeholder="Search by student ID, name, or email"
         class="border px-3 py-2 w-full"
         value="<?= $_GET['q'] ?? '' ?>">
 

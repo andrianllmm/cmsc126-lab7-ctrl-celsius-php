@@ -5,7 +5,7 @@
  */
 
 // Base path of the project (root directory)
-// IMPORTANT: use this instead of __DIR__ to avoid issues
+
 define('BASE_PATH', __DIR__);
 
 // Load core files
