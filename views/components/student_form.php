@@ -269,4 +269,4 @@ $previewName = $previewVisible ? basename($student['image_path']) : '';
 </div>
 
 <!-- External JS for image upload + crop logic -->
-<script src="public/assets/js/photo-uploader.js"></script>
+<script src="<?= BASE_URL ?>/public/assets/js/photo-uploader.js"></script>
