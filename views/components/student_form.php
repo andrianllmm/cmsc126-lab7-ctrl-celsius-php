@@ -124,7 +124,7 @@ $previewName = $previewVisible ? basename($student['image_path']) : '';
                  <?= !empty($student['graduation_status']) ? 'checked' : '' ?>
                  class="w-4 h-4 accent-red-800 cursor-pointer">
 
-          <span class="text-sm text-gray-700">Graduating student</span>
+          <span class="text-sm text-gray-700">Graduating this year?</span>
         </label>
       </div>
     </div>
