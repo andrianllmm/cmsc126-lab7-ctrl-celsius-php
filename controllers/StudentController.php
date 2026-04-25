@@ -33,10 +33,12 @@ class StudentController
     public function index()
     {
         $query = $_GET['q'] ?? '';
-        if (!empty($query)) {
-            $students = $this->studentModel->search($query);
-        } else {
+
+        // Filter students by keyword
+        if (empty($query)) {
             $students = $this->studentModel->all();
+        } else {
+            $students = $this->studentModel->search($query);
         }
 
         require BASE_PATH . '/views/students/index.php';
@@ -51,6 +53,7 @@ class StudentController
     {
         $student = $this->studentModel->find($id);
 
+        // 404 when student not found
         if (!$student) {
             http_response_code(404);
             require BASE_PATH . '/views/errors/404.php';
@@ -79,15 +82,14 @@ class StudentController
      *
      * Route: POST /store
      *
-     * Reads the cropped base64 image from $_POST['student_image_cropped']
-     * (set by the front-end crop editor). Falls back to a raw file upload
-     * in $_FILES['student_image_raw'] if no cropped data is present.
+     * Reads the cropped base64 image from $_POST['student_image_cropped'] (set by the crop editor).
+     * Fallback to a raw file upload in $_FILES['student_image_raw'].
      *
      * @return void
      */
     public function store()
     {
-        $imageFile    = isset($_FILES['student_image_raw']) ? $_FILES['student_image_raw'] : null;
+        $imageFile = isset($_FILES['student_image_raw']) ? $_FILES['student_image_raw'] : null;
         $croppedImage = isset($_POST['student_image_cropped']) ? trim($_POST['student_image_cropped']) : '';
 
         $this->studentModel->create(
@@ -126,18 +128,14 @@ class StudentController
      *
      * Route: POST /update/{id}
      *
-     * Reads the cropped base64 image from $_POST['student_image_cropped']
-     * (set by the front-end crop editor). Falls back to a raw file upload
-     * in $_FILES['student_image_raw'] if no cropped data is present.
-     *
      * @param int $id Student ID
      * @return void
      */
     public function update($id)
     {
-        $imageFile           = isset($_FILES['student_image_raw']) ? $_FILES['student_image_raw'] : null;
+        $imageFile = isset($_FILES['student_image_raw']) ? $_FILES['student_image_raw'] : null;
         $deleteExistingImage = isset($_POST['delete_image']) && $_POST['delete_image'] == '1';
-        $croppedImage        = isset($_POST['student_image_cropped']) ? trim($_POST['student_image_cropped']) : '';
+        $croppedImage = isset($_POST['student_image_cropped']) ? trim($_POST['student_image_cropped']) : '';
 
         $this->studentModel->update(
             $id,

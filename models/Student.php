@@ -1,11 +1,11 @@
 <?php
+
 require_once BASE_PATH . '/helpers/ImageHandler.php';
 
 /**
  * Student Model
  *
  * Handles all database operations related to students.
- * Delegates image handling to ImageHandler.
  *
  * Tables:
  * - students
@@ -112,22 +112,20 @@ class Student
     /**
      * Create a new student record
      *
-     * Accepts either a cropped base64 image (from the crop editor) or a
-     * raw $_FILES upload. The cropped image takes priority.
-     *
      * @param string $name
-     * @param int    $age
+     * @param int $age
      * @param string $email
-     * @param int    $course_id    Course ID from the courses table
-     * @param int    $year_level
-     * @param int    $status       0 or 1 for graduation status
-     * @param array  $imageFile    $_FILES['student_image_raw'] or null
+     * @param int $course_id Course ID from the courses table
+     * @param int $year_level
+     * @param int $status 0 or 1 for graduation status
+     * @param array $imageFile $_FILES['student_image_raw'] or null
      * @param string $croppedImage Base64 data-URL from the crop editor or ''
      * @return bool Success status
      */
     public function create($name, $age, $email, $course_id, $year_level, $status, $imageFile = null, $croppedImage = '')
     {
-        // Handle image — cropped base64 takes priority over raw file upload
+        // Handle image
+        // Cropped base64 takes priority over raw file upload
         $image_path = null;
         if (!empty($croppedImage)) {
             $image_path = $this->imageHandler->saveCroppedImage($croppedImage);
@@ -148,6 +146,7 @@ class Student
             INSERT INTO students (name, age, email, course_id, year_level, graduation_status, image_path)
             VALUES (?, ?, ?, ?, ?, ?, ?)
         ";
+
         $stmt = $this->conn->prepare($sql);
         if (!$stmt) {
             return false;
@@ -166,19 +165,16 @@ class Student
     /**
      * Update an existing student record
      *
-     * Accepts either a cropped base64 image (from the crop editor) or a
-     * raw $_FILES upload. The cropped image takes priority.
-     *
-     * @param int    $id
+     * @param int $id
      * @param string $name
-     * @param int    $age
+     * @param int $age
      * @param string $email
-     * @param int    $course_id           Course ID from the courses table
-     * @param int    $year_level
-     * @param int    $status              0 or 1 for graduation status
-     * @param array  $imageFile           $_FILES['student_image_raw'] or null
-     * @param bool   $deleteExistingImage Whether to remove the current image
-     * @param string $croppedImage        Base64 data-URL from the crop editor or ''
+     * @param int $course_id Course ID from the courses table
+     * @param int $year_level
+     * @param int $status 0 or 1 for graduation status
+     * @param array $imageFile $_FILES['student_image_raw'] or null
+     * @param bool $deleteExistingImage Whether to remove the current image
+     * @param string $croppedImage Base64 data-URL from the crop editor or ''
      * @return bool Success status
      */
     public function update($id, $name, $age, $email, $course_id, $year_level, $status, $imageFile = null, $deleteExistingImage = false, $croppedImage = '')
@@ -187,7 +183,7 @@ class Student
         $status = $status ? 1 : 0;
 
         // Get current student record
-        $oldStudent = $this->getStudentRecord($id);
+        $oldStudent = $this->get($id);
         if (!$oldStudent) {
             return false;
         }
@@ -201,6 +197,7 @@ class Student
             $image_path = null;
         }
 
+        // Handle image
         // Cropped base64 takes priority over raw file upload
         if (!empty($croppedImage)) {
             if (!empty($oldStudent['image_path'])) {
@@ -225,6 +222,7 @@ class Student
             SET name = ?, age = ?, email = ?, course_id = ?, year_level = ?, graduation_status = ?, image_path = ?
             WHERE id = ?
         ";
+
         $stmt = $this->conn->prepare($sql);
         if (!$stmt) {
             return false;
@@ -248,7 +246,7 @@ class Student
      */
     public function delete($id)
     {
-        $student = $this->getStudentRecord($id);
+        $student = $this->get($id);
         if (!$student) {
             return false;
         }
@@ -275,13 +273,10 @@ class Student
     /**
      * Fetch a raw student record by ID (without course join)
      *
-     * Used internally by update() and delete() to retrieve the current
-     * state of a record before making changes.
-     *
      * @param int $id Student ID
      * @return array|null Student row or null if not found
      */
-    private function getStudentRecord($id)
+    private function get($id)
     {
         $stmt = $this->conn->prepare("SELECT * FROM students WHERE id = ?");
         if (!$stmt) {
