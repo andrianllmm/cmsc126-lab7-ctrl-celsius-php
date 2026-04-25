@@ -128,7 +128,7 @@ class Student
         // Cropped base64 takes priority over raw file upload
         $image_path = null;
         if (!empty($croppedImage)) {
-            $image_path = $this->imageHandler->saveCroppedImage($croppedImage);
+            $image_path = $this->imageHandler->uploadCroppedImage($croppedImage);
             if (!$image_path) {
                 return false;
             }
@@ -203,7 +203,7 @@ class Student
             if (!empty($oldStudent['image_path'])) {
                 $this->imageHandler->deleteImage($oldStudent['image_path']);
             }
-            $image_path = $this->imageHandler->saveCroppedImage($croppedImage);
+            $image_path = $this->imageHandler->uploadCroppedImage($croppedImage);
             if (!$image_path) {
                 return false;
             }

@@ -1,6 +1,5 @@
 /**
- * StudentPhotoUploader
- * Handles the 3-step photo flow: dropzone → crop editor → preview.
+ * Handles the 3-step photo flow: dropzone -> crop editor -> preview.
  */
 class StudentPhotoUploader {
   // Fixed canvas dimensions and crop circle geometry
@@ -9,7 +8,7 @@ class StudentPhotoUploader {
   static CENTER = 150;
 
   constructor() {
-    // ---- DOM references ----
+    // DOM references
     this.dropzone = document.getElementById("dropzone");
     this.fileInput = document.getElementById("fileInput");
     this.cropEditor = document.getElementById("cropEditor");
@@ -23,7 +22,7 @@ class StudentPhotoUploader {
     this.previewName = document.getElementById("previewName");
     this.croppedInput = document.getElementById("croppedImageData");
 
-    // ---- Internal state ----
+    // Internal state
     this.img = new Image(); // loaded image
     this.scale = 1; // current zoom level
     this.minScale = 1; // minimum zoom to fully cover canvas
@@ -37,7 +36,7 @@ class StudentPhotoUploader {
     this._bindEvents();
   }
 
-  /* ------ Drawing ---------------------------------------- */
+  /* Drawing */
 
   draw() {
     const { ctx, img, offsetX, offsetY, scale } = this;
@@ -65,7 +64,7 @@ class StudentPhotoUploader {
     ctx.restore();
   }
 
-  /* ------ Transform helpers ------------------------------------- */
+  /* Transform helpers */
 
   // Prevent dragging image outside visible bounds
   clampOffset() {
@@ -91,7 +90,7 @@ class StudentPhotoUploader {
     return this.minScale * (1 + ((sliderValue - 100) / 100) * 2);
   }
 
-  /* ------ Editor actions ----------------------------------------- */
+  /* Editor actions */
 
   // load image and open crop editor
   openEditor(file) {
@@ -169,7 +168,7 @@ class StudentPhotoUploader {
     this.zoomSlider.dispatchEvent(new Event("input"));
   }
 
-  /* ------ Private --------------------------------------------- */
+  /* Private */
 
   // Toggle visible step (dropzone / editor / preview)
   _showStep(step) {

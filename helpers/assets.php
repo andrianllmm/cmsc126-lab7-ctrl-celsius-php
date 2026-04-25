@@ -4,7 +4,7 @@ function asset_upload($file)
 {
     $file = $file ?: 'placeholder.jpg';
 
-    $path = BASE_PATH . '/public/assets/uploads/' . $file;
+    $path = BASE_PATH . UPLOAD_URL . '/' . $file;
 
     if (!file_exists($path)) {
         $file = 'placeholder.jpg';

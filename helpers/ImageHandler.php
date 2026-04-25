@@ -1,22 +1,25 @@
 <?php
+
 /**
  * ImageHandler
  *
  * Handles all image-related operations for student records:
- * uploading raw files, saving cropped base64 images, and deleting images.
+ * uploading raw files, cropped base64 images, and deleting images.
  */
 class ImageHandler
 {
+    private const FILE_SIZE_LIMIT = 5 * 1024 * 1024; // 5 MB
+
     /**
-     * Save a cropped base64 image (from the front-end crop editor) to disk
+     * Save a cropped base64 image to disk
      *
      * Accepts a full data-URL such as:
      *   data:image/png;base64,iVBORw0KGgo...
      *
      * @param string $dataUrl Base64 data-URL
-     * @return string|null Relative path (e.g. "uploads/student_abc123.png") or null on failure
+     * @return string|null Relative path (e.g. "student_abc123.png") or null on failure
      */
-    public function saveCroppedImage($dataUrl)
+    public function uploadCroppedImage($dataUrl)
     {
         if (empty($dataUrl)) {
             return null;
@@ -27,20 +30,20 @@ class ImageHandler
             return null;
         }
 
-        $ext     = strtolower($matches[1]) === 'jpeg' ? 'jpg' : strtolower($matches[1]);
+        $ext = strtolower($matches[1]) === 'jpeg' ? 'jpg' : strtolower($matches[1]);
         $allowed = ['png', 'jpg', 'gif', 'webp'];
         if (!in_array($ext, $allowed)) {
             return null;
         }
 
         $base64Data = preg_replace('/^data:image\/\w+;base64,/', '', $dataUrl);
-        $imageData  = base64_decode($base64Data);
+        $imageData = base64_decode($base64Data);
         if ($imageData === false) {
             return null;
         }
 
-        // Enforce 5 MB limit
-        if (strlen($imageData) > 5 * 1024 * 1024) {
+        // Enforce limit
+        if (strlen($imageData) > self::FILE_SIZE_LIMIT) {
             return null;
         }
 
@@ -69,7 +72,8 @@ class ImageHandler
             return null;
         }
 
-        if ($file['size'] > 5 * 1024 * 1024) {
+        // Enforce limit
+        if ($file['size'] > self::FILE_SIZE_LIMIT) {
             return null;
         }
 
@@ -85,7 +89,7 @@ class ImageHandler
     /**
      * Delete an image file from the uploads directory
      *
-     * @param string $image_path Relative path (e.g. "uploads/student_abc.png")
+     * @param string $image_path Relative path
      * @return bool
      */
     public function deleteImage($image_path)
@@ -108,7 +112,7 @@ class ImageHandler
      */
     private function resolveUploadPath($filename)
     {
-        $upload_dir = BASE_PATH . '/public/assets/uploads';
+        $upload_dir = BASE_PATH . UPLOAD_URL;
 
         // Create directory if it doesn't exist
         if (!is_dir($upload_dir) && !mkdir($upload_dir, 0755, true)) {
@@ -117,7 +121,6 @@ class ImageHandler
 
         return [
             'absolute' => $upload_dir . '/' . $filename,
-            // CHANGE THIS: Return only the filename, not the whole folder path
             'relative' => $filename,
         ];
     }
