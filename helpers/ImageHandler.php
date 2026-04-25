@@ -105,20 +105,20 @@ class ImageHandler
     /**
      * Ensure the uploads directory exists and return both absolute
      * and relative paths for a given filename.
-     *
-     * @param string $filename
-     * @return array|null ['absolute' => ..., 'relative' => ...] or null on failure
      */
     private function resolveUploadPath($filename)
     {
-        $upload_dir = BASE_PATH . '/uploads';
+        $upload_dir = BASE_PATH . '/public/assets/uploads';
+
+        // Create directory if it doesn't exist
         if (!is_dir($upload_dir) && !mkdir($upload_dir, 0755, true)) {
             return null;
         }
 
         return [
             'absolute' => $upload_dir . '/' . $filename,
-            'relative' => 'uploads/' . $filename,
+            // CHANGE THIS: Return only the filename, not the whole folder path
+            'relative' => $filename,
         ];
     }
 }
