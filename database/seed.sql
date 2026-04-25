@@ -1,7 +1,5 @@
 USE cmsc126_db;
 
-USE cmsc126_db;
-
 -- Clean slate before seeding
 SET FOREIGN_KEY_CHECKS = 0;
 TRUNCATE TABLE students;
