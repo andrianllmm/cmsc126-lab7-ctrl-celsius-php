@@ -124,20 +124,16 @@ class StudentPhotoUploader {
     reader.readAsDataURL(file);
   }
 
-  // crop image into circular output
+  // crop image into square output
   applyCrop() {
-    const { SIZE, RADIUS, CENTER } = StudentPhotoUploader;
+    const { SIZE } = StudentPhotoUploader;
 
     const out = document.createElement("canvas");
     out.width = SIZE;
     out.height = SIZE;
     const octx = out.getContext("2d");
 
-    // Clip to circle before drawing
-    octx.beginPath();
-    octx.arc(CENTER, CENTER, RADIUS, 0, Math.PI * 2);
-    octx.clip();
-
+    // Draw full square image
     octx.drawImage(
       this.img,
       this.offsetX,
