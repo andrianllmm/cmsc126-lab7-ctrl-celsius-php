@@ -22,7 +22,7 @@ function formField(string $name, string $label, array $attrs = []): string
 
     return <<<HTML
         <label for="$name" class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">
-            $label
+            $label <span class="text-red-600">*</span>
         </label>
         <input id="$name" name="$name" value="$value" required class="$inputClass"$attrStr>
     HTML;
