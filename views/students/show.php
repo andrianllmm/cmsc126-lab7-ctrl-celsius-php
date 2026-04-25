@@ -3,7 +3,7 @@
 <div class="mx-auto p-6">
     <div class="mb-6">
         <a href="<?= BASE_URL ?>/">
-            <button class="bg-red-800 text-white px-2 py-1">
+            <button class="bg-red-800 text-white px-3 py-1.5 rounded-md text-sm flex items-center gap-2 hover:bg-red-900 transition">
                 <i class="fa-solid fa-arrow-left fa-xs"></i>
                 Back
             </button>
@@ -14,7 +14,7 @@
         <img src="<?= asset_upload($student['image_path']) ?>" class="w-24 h-24 rounded-full object-cover">
 
         <div>
-            <h1 class="text-2xl font-bold"><?= htmlspecialchars($student['name']) ?></h1>
+            <h1 class="text-2xl font-bold text-gray-900"><?= htmlspecialchars($student['name']) ?></h1>
             <a href="mailto:<?= htmlspecialchars($student['email']) ?>" class="text-gray-600 hover:underline flex items-center gap-1">
                 <i class="fa-regular fa-envelope fa-xs"></i>
                 <?= htmlspecialchars($student['email']) ?>
@@ -22,7 +22,7 @@
         </div>
     </div>
 
-    <div class="mt-6 space-y-2">
+    <div class="mt-6 space-y-2 text-gray-800">
         <p><strong>Course:</strong> <?= htmlspecialchars($student['course_name']) ?></p>
         <p><strong>Age:</strong> <?= $student['age'] ?></p>
         <p><strong>Year Level:</strong> <?= $student['year_level'] ?></p>
@@ -34,7 +34,7 @@
     <div class="mt-6 flex gap-2">
 
         <a href="<?= BASE_URL ?>/edit/<?= $student['id'] ?>"
-            class="bg-yellow-600 text-white px-3 py-2 text-sm flex items-center gap-2 hover:bg-yellow-700">
+            class="bg-yellow-600 text-white px-3 py-2 text-sm rounded-md flex items-center gap-2 hover:bg-yellow-700 transition">
 
             <i class="fa-regular fa-pen-to-square"></i>
             Edit
@@ -42,7 +42,7 @@
 
         <a href="<?= BASE_URL ?>/delete/<?= $student['id'] ?>"
             onclick="return confirm('Delete this student?')"
-            class="bg-red-700 text-white px-3 py-2 text-sm flex items-center gap-2 hover:bg-red-800">
+            class="bg-red-700 text-white px-3 py-2 text-sm rounded-md flex items-center gap-2 hover:bg-red-800 transition">
 
             <i class="fa-regular fa-trash-can"></i>
             Delete

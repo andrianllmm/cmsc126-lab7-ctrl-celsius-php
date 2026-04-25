@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Renders a labeled <input> with standard styling.
  *
