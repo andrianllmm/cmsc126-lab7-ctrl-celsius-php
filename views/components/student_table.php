@@ -37,7 +37,7 @@
                     </td>
 
                     <td class="px-4 py-2 border-b">
-                        <?= $s['graduation_status'] ? 'Graduated' : 'Not Graduated' ?>
+                        <?= $s['graduation_status'] ? 'Graduating' : 'Non-Graduating' ?>
                     </td>
 
                     <td class="px-4 py-2 border-b">
