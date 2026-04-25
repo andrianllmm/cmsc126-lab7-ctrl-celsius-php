@@ -71,12 +71,33 @@ class Student
     }
 
     /**
-     * Search students by keyword (name or email)
+     * Search students by keyword (student_id, name, or email)
      *
      * @param string $keyword Search term
      * @return array Matching students
      */
-    public function search($keyword) {}
+    public function search($keyword)
+    {
+        $sql = "
+            SELECT
+                students.*,
+                courses.course_name
+            FROM students
+            JOIN courses ON students.course_id = courses.id
+            WHERE students.student_id LIKE ?
+            OR students.name LIKE ?
+            OR students.email LIKE ?
+            ORDER BY students.name
+        ";
+
+        $stmt = $this->conn->prepare($sql);
+        $likeKeyword = '%' . $keyword . '%';
+        $stmt->bind_param("sss", $likeKeyword, $likeKeyword, $likeKeyword);
+        $stmt->execute();
+
+        $result = $stmt->get_result();
+        return $result->fetch_all(MYSQLI_ASSOC);
+    }
 
     /**
      * Create a new student record
