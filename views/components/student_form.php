@@ -13,8 +13,12 @@ $formAction = BASE_URL . ($isEdit ? '/update/' . $student['id'] : '/store');
 $previewVisible = $isEdit && !empty($student['image_path']);
 
 // Build preview image source and filename safely
-$previewSrc  = $previewVisible ? BASE_URL . '/' . htmlspecialchars($student['image_path']) : '';
+$previewSrc = $previewVisible ? BASE_URL . '/public/assets/uploads/' . htmlspecialchars($student['image_path']) : '';
 $previewName = $previewVisible ? basename($student['image_path']) : '';
+
+
+// The course_id of the current student (for pre-selecting in edit mode)
+$selectedCourseId = $student['course_id'] ?? null;
 ?>
 
 <!-- Import reusable form helper functions -->
@@ -83,15 +87,27 @@ $previewName = $previewVisible ? basename($student['image_path']) : '';
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-      <!-- Course -->
+      <!-- Course Dropdown -->
       <div>
-        <?= formField('course', 'Course', [
-            'type'        => 'text',
-            'maxlength'   => 40,
-            // Prefer course_name if available (edit mode fallback)
-            'value'       => $student['course_name'] ?? $student['course'] ?? '',
-            'placeholder' => 'e.g. BS Computer Science',
-        ]) ?>
+        <label for="course" class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">
+          Course
+        </label>
+
+        <select id="course" name="course" required
+                class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm text-gray-800
+                       focus:outline-none focus:border-red-800 focus:ring-2 focus:ring-red-800/10 transition
+                       appearance-none bg-white">
+
+          <option value="">Select a course</option>
+
+          <?php foreach ($courses as $course): ?>
+            <option value="<?= htmlspecialchars($course['id']) ?>"
+                    <?= $selectedCourseId == $course['id'] ? 'selected' : '' ?>>
+              <?= htmlspecialchars($course['course_name']) ?>
+            </option>
+          <?php endforeach; ?>
+
+        </select>
       </div>
 
       <!-- Year Level Dropdown -->

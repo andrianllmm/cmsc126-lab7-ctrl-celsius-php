@@ -9,15 +9,18 @@
 class StudentController
 {
     private $studentModel;
+    private $courseModel;
 
     /**
      * Constructor
      *
      * @param Student $studentModel Instance of Student model
+     * @param Course  $courseModel  Instance of Course model
      */
-    public function __construct($studentModel)
+    public function __construct($studentModel, $courseModel)
     {
         $this->studentModel = $studentModel;
+        $this->courseModel  = $courseModel;
     }
 
     /**
@@ -61,6 +64,8 @@ class StudentController
      */
     public function create()
     {
+        $courses = $this->courseModel->all();
+
         require BASE_PATH . '/views/students/create.php';
     }
 
@@ -106,6 +111,7 @@ class StudentController
     public function edit($id)
     {
         $student = $this->studentModel->find($id);
+        $courses = $this->courseModel->all();
 
         require BASE_PATH . '/views/students/edit.php';
     }
