@@ -1,6 +1,9 @@
 # CMSC 126 Lab 7 - PHP
 
-Demo: [http://andrianllmm.page.gd/](http://andrianllmm.page.gd/)
+Demo: <http://students-registration-126.page.gd/>
+
+<img src="docs/images/records.png" width="500">
+<img src="docs/images/form.png" width="500">
 
 ## Overview
 
@@ -11,6 +14,7 @@ This project is a PHP and MySQL web application implementing a basic CRUD system
 - Create, Read, Update, Delete (CRUD)
 - Search functionality
 - File upload handling (images)
+- Crop editor
 - Relational database with multiple models (students <-> courses)
 - Clean and dynamic URL routing (no .php extension)
 - Environment variables (.env)
