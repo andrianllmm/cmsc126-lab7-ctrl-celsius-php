@@ -3,9 +3,9 @@
 /**
  * Renders a labeled <input> with standard styling.
  *
- * @param string $name       Field name / id
- * @param string $label      Human-readable label text
- * @param array  $attrs      Extra HTML attributes (type, value, placeholder, etc.)
+ * @param string $name Field name / id
+ * @param string $label Human-readable label text
+ * @param array  $attrs Extra HTML attributes (type, value, placeholder, etc.)
  */
 function formField(string $name, string $label, array $attrs = []): string
 {
@@ -27,27 +27,4 @@ function formField(string $name, string $label, array $attrs = []): string
         </label>
         <input id="$name" name="$name" value="$value" required class="$inputClass"$attrStr>
     HTML;
-}
-
-/**
- * Renders a labeled section divider (title + horizontal rule).
- */
-function sectionDivider(string $title): string
-{
-    return <<<HTML
-        <div class="flex items-center gap-3 mb-4">
-            <p class="text-xs font-medium text-gray-400 uppercase tracking-widest whitespace-nowrap">$title</p>
-            <div class="flex-1 h-px bg-gray-200"></div>
-        </div>
-    HTML;
-}
-
-/**
- * Returns 'selected' if the student's year_level matches $year.
- */
-function yearSelected(?array $student, int $year): string
-{
-    return isset($student['year_level']) && (int)$student['year_level'] === $year
-        ? 'selected'
-        : '';
 }
