@@ -1,6 +1,6 @@
 <?php require BASE_PATH . '/views/layout/header.php'; ?>
 
-<div class="max-w-3xl mx-auto p-6">
+<div class="mx-auto p-6">
     <div class="mb-6">
         <a href="<?= BASE_URL ?>/">
             <button class="bg-red-800 text-white px-2 py-1">
