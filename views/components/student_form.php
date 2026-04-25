@@ -24,7 +24,7 @@ $isEdit = isset($student);
           <label for="name" class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">Full Name</label>
           <input id="name" name="name" type="text" maxlength="40"
             value="<?= htmlspecialchars($student['name'] ?? '') ?>"
-            placeholder="e.g. Maria Santos" required
+            placeholder="e.g. Juan Dela Cruz" required
             class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-red-800 focus:ring-2 focus:ring-red-800/10 transition">
         </div>
         <div>
@@ -38,7 +38,7 @@ $isEdit = isset($student);
           <label for="email" class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">Email Address</label>
           <input id="email" name="email" type="email" maxlength="40"
             value="<?= htmlspecialchars($student['email'] ?? '') ?>"
-            placeholder="m.santos@school.edu" required
+            placeholder="jdcruz@up.edu.ph" required
             class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-red-800 focus:ring-2 focus:ring-red-800/10 transition">
         </div>
       </div>
@@ -105,10 +105,13 @@ $isEdit = isset($student);
 
       <!-- STEP 2 — Crop editor -->
       <div id="cropEditor" class="hidden">
-        <div class="border border-gray-200 rounded-xl p-5 bg-gray-50">
-          <p class="text-xs font-medium text-gray-400 uppercase tracking-widest mb-4">Drag to reposition &middot; Scroll or slide to zoom</p>
+        <div class="mx-auto w-[750px] border border-gray-200 rounded-xl p-8 bg-gray-50">
+          <p class="text-xs font-medium text-gray-400 uppercase tracking-widest mb-6 text-center">
+            Drag to reposition &middot; Scroll or slide to zoom
+          </p>
+
           <div id="canvasWrap"
-            class="relative mx-auto cursor-grab active:cursor-grabbing select-none overflow-hidden rounded-lg bg-gray-200"
+            class="relative mx-auto cursor-grab active:cursor-grabbing select-none overflow-hidden rounded-lg bg-gray-200 shadow-sm"
             style="width:300px;height:300px;">
             <canvas id="cropCanvas" width="300" height="300"
               class="block"
@@ -116,21 +119,26 @@ $isEdit = isset($student);
             <div class="absolute inset-0 pointer-events-none"
               style="border-radius:50%; border:2.5px solid #991b1b; box-sizing: border-box;"></div>
           </div>
-          <!-- Zoom controls -->
-          <div class="flex items-center gap-3 mt-5">
-            <button type="button" id="zoomOut"
-              class="w-7 h-7 rounded-full border border-gray-300 bg-white flex items-center justify-center text-gray-600 hover:bg-gray-100 transition flex-shrink-0 text-base leading-none">
-              &#8722;
-            </button>
-            <input type="range" id="zoomSlider" min="100" max="300" value="100" step="1" class="flex-1 accent-red-800">
-            <button type="button" id="zoomIn"
-              class="w-7 h-7 rounded-full border border-gray-300 bg-white flex items-center justify-center text-gray-600 hover:bg-gray-100 transition flex-shrink-0 text-base leading-none">
-              &#43;
-            </button>
-            <span id="zoomPct" class="text-xs text-gray-400 w-9 text-right flex-shrink-0">100%</span>
+
+          <div class="flex flex-col items-center mt-8">
+            <div class="flex items-center gap-4">
+              <button type="button" id="zoomOut"
+                class="w-8 h-8 rounded-full border border-gray-300 bg-white flex items-center justify-center text-gray-600 hover:bg-gray-100 transition text-lg leading-none">
+                &#8722;
+              </button>
+
+              <input type="range" id="zoomSlider" min="100" max="300" value="100" step="1"
+                class="w-[340px] accent-red-800 cursor-pointer">
+
+              <button type="button" id="zoomIn"
+                class="w-8 h-8 rounded-full border border-gray-300 bg-white flex items-center justify-center text-gray-600 hover:bg-gray-100 transition text-lg leading-none">
+                &#43;
+              </button>
+            </div>
+            <span id="zoomPct" class="text-xs text-gray-400 mt-2">100%</span>
           </div>
-          <!-- Buttons -->
-          <div class="flex gap-3 mt-4">
+
+          <div class="flex gap-4 mt-8 max-w-[500px] mx-auto">
             <button type="button" id="cropCancelBtn"
               class="flex-1 border border-gray-300 rounded-lg py-2.5 text-sm text-gray-500 bg-white hover:bg-gray-50 transition">
               Cancel
